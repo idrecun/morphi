@@ -31,8 +31,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		max_phi.push_back(chash);
 		max_path.push_back(v);
 		max_perm.clear();
-	}
-	*/
+	}*/
 
 	vector<int> cell = pi.cell_content(pi.target_cell());
 	for(int v : cell) {
@@ -41,12 +40,11 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		dfs(g, pi_v, v, level + 1);
 	}
 
-	/*if(cell.empty()) {
+	if(cell.empty()) {
 		vector<bool> leaf_graph = g.permute(pi.permutation());
-		vector<bool> max_graph = g.permute(max_perm);
-		if(max_perm.empty() || leaf_graph > max_graph)
+		if(max_perm.empty() || leaf_graph > g.permute(max_perm))
 			max_perm = pi.permutation();
-	}*/
+	}
 }
 
 int main() {
