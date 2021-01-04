@@ -16,11 +16,9 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 	pi.make_equitable(g, v);
 
 	//obrada
-	cout << string(level, '\t') << pi << '\n';
-
-	/*uint32_t chash = 1;
+	uint32_t chash = pi.hash();
 	if(max_phi.size() > level && chash < max_phi[level]) {
-		cout << "CUT ";
+		cout << string(level, '\t') << "CUT\n";
 		return;
 	}
 	if(max_phi.size() > level && max_phi[level] < chash) {
@@ -31,7 +29,10 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		max_phi.push_back(chash);
 		max_path.push_back(v);
 		max_perm.clear();
-	}*/
+	}
+
+	cout << string(level, '\t') << pi << '\n';
+
 
 	vector<int> cell = pi.cell_content(pi.target_cell());
 	for(int v : cell) {
@@ -39,6 +40,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		pi_v.individualize(v);
 		dfs(g, pi_v, v, level + 1);
 	}
+
 
 	if(cell.empty()) {
 		vector<bool> leaf_graph = g.permute(pi.permutation());
