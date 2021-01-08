@@ -10,7 +10,9 @@ using namespace std;
 
 vector<uint32_t> max_phi;
 vector<int> max_perm;
-vector<int> max_path;
+
+vector<uint32_t> fst_phi;
+vector<int> fst_perm;
 
 void dfs(const graph& g, colouring pi, int v, int level) {
 	pi.make_equitable(g, v);
@@ -21,13 +23,10 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		cout << string(level, '\t') << "CUT\n";
 		return;
 	}
-	if(max_phi.size() > level && max_phi[level] < chash) {
+	if(max_phi.size() > level && max_phi[level] < chash)
 		max_phi.resize(level);
-		max_path.resize(level);
-	}
 	if(max_phi.size() <= level) {
 		max_phi.push_back(chash);
-		max_path.push_back(v);
 		max_perm.clear();
 	}
 

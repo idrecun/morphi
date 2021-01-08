@@ -124,8 +124,6 @@ class colouring {
 
 	uint32_t hash() const {
 		uint32_t res = n;
-		for(int x : pi)
-			res ^= (uint32_t) x + 0x9e3779b9 + (res << 6) + (res >> 2);
 		for(int i = 0; i < n; i = cells[i])
 			res ^= (uint32_t) i + 0x9e3779b7 + (res << 6) + (res >> 2);
 		return res;
