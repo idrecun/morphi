@@ -1,8 +1,20 @@
 #ifndef __AUTOMORPHISM_SET_H__
 #define __AUTOMORPHISM_SET_H__
 
+#include <vector>
+#include <algorithm>
+
+#include "permutation.h"
+
+using std::vector;
+using std::swap;
+
 class automorphism_set {
 	public:
+		automorphism_set() {
+			n = 0;
+		}
+
 		automorphism_set(size_t n) {
 			this->n = n;
 			stab = vector< vector<int> >(n);
@@ -10,8 +22,8 @@ class automorphism_set {
 		}
 
 		// O(n)
-		void insert(const vector<int>& aut) {
-			vector<bool> is_mcr(aut.size(), true);
+		void insert(const permutation& aut) {
+			vector<bool> is_mcr(n, true);
 			vector<int> mcr;
 			for(int i = 0; i < n; i++) {
 				if(aut[i] == i)
@@ -26,7 +38,7 @@ class automorphism_set {
 			for(int v : mcr)
 				imcr[v].push_back(auts.size());
 
-			auts.push_back(mcr);
+			auts.push_back(aut);
 		}
 
 		// O(n)
@@ -63,11 +75,15 @@ class automorphism_set {
 			return ret;
 		}
 
+		bool empty() const {
+			return auts.empty();
+		}
+
 	private:
 		size_t n;
 		vector< vector<int> > stab;
 		vector< vector<int> > imcr;
-		vector< vector<int> > auts;
+		vector< permutation > auts;
 };
 
 #endif

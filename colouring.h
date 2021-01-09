@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "graph.h"
+#include "permutation.h"
 
 #define DEBUG true
 
@@ -22,12 +23,7 @@ class colouring {
 	colouring(int n) {
 		this->n = n;
 		hash = n;
-		pi = vector<int>(n);
-		ip = vector<int>(n);
-		for(int i = 0; i < n; i++) {
-			pi[i] = i;
-			ip[i] = i;
-		}
+		pi = permutation(n);
 		cells = vector<int>(n, -1);
 		cells[0] = n;
 	}
@@ -42,18 +38,13 @@ class colouring {
 	vector<int> cell_content(int i) const {
 		if(i < 0 || i >= n || cells[i] == -1)
 			return vector<int>();
-		return vector<int>(next(pi.begin(), i), next(pi.begin(), cells[i]));
-	}
-
-	void p_swap(int i, int j) {
-		swap(pi[i], pi[j]);
-		swap(ip[pi[i]], ip[pi[j]]);
+		return vector<int>(next(pi.p().begin(), i), next(pi.p().begin(), cells[i]));
 	}
 
 	void individualize(int v) {
-		int i = ip[v];
+		int i = pi.i(v);
 		while(cells[i] == -1) {
-			p_swap(i, i - 1);
+			pi.swap(i, i - 1);
 			i--;
 		}
 		cells[i + 1] = cells[i];
@@ -72,8 +63,7 @@ class colouring {
 		}
 		sort(kv.begin(), kv.end());
 		for(int i = 0; i < kv.size(); i++) {
-			pi[i + l] = kv[i].second;
-			ip[pi[i + l]] = i + l;
+			pi.set(i + l, kv[i].second);
 			if(i > 0 && kv[i].first != kv[i - 1].first) {
 				cells[c] = i + l;
 				c = i + l;
@@ -124,20 +114,20 @@ class colouring {
 	}
 
 	void make_equitable(const graph& g, int v) {
-		make_equitable(g, vector<int>({ip[v]}));
+		make_equitable(g, vector<int>({pi.i(v)}));
 	}
 
 	uint32_t invariant() const {
 		return hash;
 	}
 
-	vector<int> permutation() const {
+	const permutation& p() const {
 		return pi;
 	}
 
 	friend ostream& operator<<(ostream& out, const colouring& c);
 
-	private:
+private:
 
 	void update_hash(uint32_t val) {
 		hash ^= (uint32_t) val + 0x9e3779b7 + (hash << 6) + (hash >> 2);
@@ -145,18 +135,17 @@ class colouring {
 
 	int n;
 	uint32_t hash;
-	vector<int> pi;
-	vector<int> ip;
+	permutation pi;
 	vector<int> cells;
 };
 
 ostream& operator<<(ostream& out, const colouring& c) {
 	for(int l = 0; l < c.n; l = c.cells[l]) {
 		if(l > 0)
-			cout << " | ";
+			out << " | ";
 		for(int i = l; i < c.cells[l] - 1; i++)
-			cout << c.pi[i] << ' ';
-		cout << c.pi[c.cells[l] - 1];
+			out << c.pi[i] << ' ';
+		out << c.pi[c.cells[l] - 1];
 	}
 	return out;
 }

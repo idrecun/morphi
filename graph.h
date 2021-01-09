@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "permutation.h"
+
 using std::vector;
 
 class graph {
@@ -26,8 +28,8 @@ public:
 		g[v].push_back(u);
 	}
 
-	vector<bool> permute(const vector<int>& pi) const {
-		vector< vector<int> > t_m(n, vector<int>(n, 0));
+	vector<bool> permute(const permutation& pi) const {
+		vector< vector<bool> > t_m(n, vector<bool>(n, 0));
 		for(int i = 0; i < n; i++)
 			for(int j = i + 1; j < n; j++) {
 				t_m[pi[i]][pi[j]] = m[i][j];
