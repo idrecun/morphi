@@ -51,7 +51,7 @@ class colouring {
 		cells[i] = i + 1;
 	}
 
-	int refine_cell(int c, const graph& g, const vector<int>& W) {
+	int refine_cell(int c, const graph& g, const vector<int>& W, bool upd_hash) {
 		if(cells[c] == -1)
 			return n;
 
@@ -68,6 +68,8 @@ class colouring {
 				cells[c] = i + l;
 				c = i + l;
 			}
+			if(upd_hash)
+				update_hash((uint32_t)kv[i].first);
 		}
 		cells[c] = r;
 
@@ -92,7 +94,7 @@ class colouring {
 
 			for(int l = 0, r; l < n; l = r) {
 				r = cells[l];
-				int skip_cell = refine_cell(l, g, W);
+				int skip_cell = refine_cell(l, g, W, true);
 
 				if(alpha_set[l])
 					skip_cell = l;
