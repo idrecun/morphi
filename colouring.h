@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "Graph.h"
+#include "graph.h"
 
 #define DEBUG true
 

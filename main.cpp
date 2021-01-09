@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 
-#include "Colouring.h"
-#include "Graph.h"
+#include "colouring.h"
+#include "graph.h"
 
 #define DEBUG true
 

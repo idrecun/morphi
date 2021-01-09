@@ -1,9 +1,9 @@
-#ifndef __AUTOMORPHISMSET_H__
-#define __AUTOMORPHISMSET_H__
+#ifndef __AUTOMORPHISM_SET_H__
+#define __AUTOMORPHISM_SET_H__
 
-class AutomorphismSet {
+class automorphism_set {
 	public:
-		AutomorphismSet(size_t n) {
+		automorphism_set(size_t n) {
 			this->n = n;
 			stab = vector< vector<int> >(n);
 			imcr = vector< vector<int> >(n);
@@ -39,15 +39,15 @@ class AutomorphismSet {
 		}
 
 		// O(n * t_stab)
-		AutomorphismSet stabilizer(int sPoint) const {
-			AutomorphismSet ret(n);
+		automorphism_set stabilizer(int sPoint) const {
+			automorphism_set ret(n);
 			for(int i : stab[sPoint])
 				ret.insert(auts[i]);
 			return ret;
 		}
 
 		// O(n * t_stab) recimo
-		AutomorphismSet stabilizer(const vector<int>& sPoints) const {
+		automorphism_set stabilizer(const vector<int>& sPoints) const {
 			vector<int> intersect = stab[sPoints[0]];
 			for(int sPoint : sPoints) {
 				vector<int> intersect_r;
@@ -57,7 +57,7 @@ class AutomorphismSet {
 				intersect = intersect_r;
 			}
 
-			AutomorphismSet ret(n);
+			automorphism_set ret(n);
 			for(int aut : intersect)
 				ret.insert(auts[aut]);
 			return ret;
