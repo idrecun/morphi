@@ -21,6 +21,7 @@ class colouring {
 	public:
 	colouring(int n) {
 		this->n = n;
+		hash = n;
 		pi = vector<int>(n);
 		ip = vector<int>(n);
 		for(int i = 0; i < n; i++) {
@@ -84,6 +85,7 @@ class colouring {
 		for(int i = l; i < r; i = cells[i])
 			if(cells[i] - i > cells[max_cell] - max_cell)
 				max_cell = i;
+
 		return max_cell;
 	}
 
@@ -112,6 +114,9 @@ class colouring {
 					}
 			}
 		}
+
+		for(int i = 0; i != n; i = cells[i])
+			update_hash(i);
 	}
 
 	void make_equitable(const graph& g) {
@@ -122,11 +127,8 @@ class colouring {
 		make_equitable(g, vector<int>({ip[v]}));
 	}
 
-	uint32_t hash() const {
-		uint32_t res = n;
-		for(int i = 0; i < n; i = cells[i])
-			res ^= (uint32_t) i + 0x9e3779b7 + (res << 6) + (res >> 2);
-		return res;
+	uint32_t invariant() const {
+		return hash;
 	}
 
 	vector<int> permutation() const {
@@ -136,7 +138,13 @@ class colouring {
 	friend ostream& operator<<(ostream& out, const colouring& c);
 
 	private:
+
+	void update_hash(uint32_t val) {
+		hash ^= (uint32_t) val + 0x9e3779b7 + (hash << 6) + (hash >> 2);
+	}
+
 	int n;
+	uint32_t hash;
 	vector<int> pi;
 	vector<int> ip;
 	vector<int> cells;

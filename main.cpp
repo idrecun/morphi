@@ -18,7 +18,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 	pi.make_equitable(g, v);
 
 	//obrada
-	uint32_t chash = pi.hash();
+	uint32_t chash = pi.invariant();
 	if(max_phi.size() > level && chash < max_phi[level]) {
 		cout << string(level, '\t') << "CUT\n";
 		return;
