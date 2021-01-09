@@ -105,8 +105,9 @@ class colouring {
 			}
 		}
 
+		hash = n;
 		for(int i = 0; i != n; i = cells[i])
-			update_hash(i);
+			update_hash((uint32_t) i);
 	}
 
 	void make_equitable(const graph& g) {
@@ -130,7 +131,7 @@ class colouring {
 private:
 
 	void update_hash(uint32_t val) {
-		hash ^= (uint32_t) val + 0x9e3779b7 + (hash << 6) + (hash >> 2);
+		hash ^= val + 0x9e3779b7 + (hash << 6) + (hash >> 2);
 	}
 
 	int n;

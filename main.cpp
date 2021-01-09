@@ -5,7 +5,7 @@
 #include "colouring.h"
 #include "graph.h"
 
-#define DEBUG false
+#define DEBUG true
 
 using namespace std;
 
@@ -37,7 +37,12 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		max_perm.clear();
 	}
 
-	cout << string(level, '\t') << pi << '\n';
+	cout << string(level, '\t') << pi;
+	if(DEBUG) {
+		cout << ' ';
+		cout << pi.invariant() << ' ';
+	}
+	cout << '\n';
 
 
 	vector<int> cell = pi.cell_content(pi.target_cell());
