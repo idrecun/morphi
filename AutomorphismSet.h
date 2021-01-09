@@ -24,7 +24,7 @@ class AutomorphismSet {
 			}
 
 			for(int v : mcr)
-				imcr[v].push_back(aut.size());
+				imcr[v].push_back(auts.size());
 
 			auts.push_back(mcr);
 		}
@@ -43,6 +43,23 @@ class AutomorphismSet {
 			AutomorphismSet ret(n);
 			for(int i : stab[sPoint])
 				ret.insert(auts[i]);
+			return ret;
+		}
+
+		// O(n * t_stab) recimo
+		AutomorphismSet stabilizer(const vector<int>& sPoints) const {
+			vector<int> intersect = stab[sPoints[0]];
+			for(int sPoint : sPoints) {
+				vector<int> intersect_r;
+				for(int aut : intersect)
+					if(binary_search(stab[sPoint].begin(), stab[sPoint].end(), aut))
+						intersect_r.push_back(aut);
+				intersect = intersect_r;
+			}
+
+			AutomorphismSet ret(n);
+			for(int aut : intersect)
+				ret.insert(auts[aut]);
 			return ret;
 		}
 
