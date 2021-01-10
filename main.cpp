@@ -5,7 +5,7 @@
 #include "colouring.h"
 #include "graph.h"
 
-#define DEBUG true
+#define DEBUG false
 
 using namespace std;
 
@@ -27,7 +27,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 
 	uint32_t pi_phi = pi.invariant();
 	if(max_phi.size() > level && pi_phi < max_phi[level]) {
-		cout << string(level, '\t') << "CUT\n";
+		// cout << string(level, '\t') << "CUT\n";
 		return;
 	}
 	if(max_phi.size() > level && pi_phi > max_phi[level])
@@ -37,13 +37,12 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 		max_perm.clear();
 	}
 
-	cout << string(level, '\t') << pi;
 	if(DEBUG) {
-		cout << ' ';
-		cout << pi.invariant() << ' ';
+		cout << string(level, '\t') << pi;
+		cout << "   INV: ";
+		cout << pi.invariant();
+		cout << '\n';
 	}
-	cout << '\n';
-
 
 	vector<int> cell = pi.cell_content(pi.target_cell());
 	for(int i = 0; i < cell.size(); i++) {
@@ -74,7 +73,8 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 			fst_perm = pi.p();
 		else if(leaf_graph == g.permute(fst_perm)) {
 			aut.insert(pi.p() * ~fst_perm);
-			cout << string(level, '\t') << "Automorphism detected: " << (pi.p() * ~fst_perm) << '\n';
+			if(DEBUG)
+				cout << string(level, '\t') << "Automorphism detected: " << (pi.p() * ~fst_perm) << '\n';
 			// dodati backjump ako je ispunjen uslov za teta
 		}
 	}
@@ -101,7 +101,11 @@ int main() {
 	
 	dfs(g, pi, -1, 0);
 
-	//cout << max_perm << '\n';
+	vector<bool> canonical = g.permute(max_perm);
+	for(int b : canonical)
+		cout << b;
+	cout << '\n';
+	//cout << g.permute(max_perm) << '\n';
 
 	return 0;
 }
