@@ -19,19 +19,19 @@ automorphism_set aut;
 
 vector<int> stabilized;
 
-void dfs(const graph& g, colouring pi, int v, int level) {
+void dfs(const graph& g, colouring pi, int v, int level) {//, int lmax_level) {
 
 	if(v >= 0)
 		stabilized.push_back(v);
 	pi.make_equitable(g, v);
 
 	uint32_t pi_phi = pi.invariant();
-	if(max_phi.size() > level && pi_phi < max_phi[level]) {
-		// cout << string(level, '\t') << "CUT\n";
+	if(max_phi.size() > level && pi_phi < max_phi[level])
 		return;
-	}
+
 	if(max_phi.size() > level && pi_phi > max_phi[level])
 		max_phi.resize(level);
+
 	if(max_phi.size() <= level) {
 		max_phi.push_back(pi_phi);
 		max_perm.clear();
@@ -40,7 +40,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 	if(DEBUG) {
 		cout << string(level, '\t') << pi;
 		cout << "   INV: ";
-		cout << pi.invariant();
+		cout << pi_phi;
 		cout << '\n';
 	}
 
@@ -65,8 +65,15 @@ void dfs(const graph& g, colouring pi, int v, int level) {
 	// Discrete colouring
 	if(cell.empty()) {
 		vector<bool> leaf_graph = g.permute(pi.p());
-		if(max_perm.empty() || leaf_graph > g.permute(max_perm))
+		if(max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permute(max_perm)))
 			max_perm = pi.p();
+
+		if(DEBUG) {
+			cout << string(level, '\t');
+			for(int x : leaf_graph)
+				cout << x;
+			cout << '\n';
+		}
 
 		// Automorphism detected
 		if(fst_perm.empty())
