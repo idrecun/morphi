@@ -8,8 +8,6 @@
 #include "graph.h"
 #include "permutation.h"
 
-#define DEBUG true
-
 using std::pair;
 using std::vector;
 using std::ostream;
@@ -63,7 +61,7 @@ class colouring {
 		}
 		sort(kv.begin(), kv.end());
 		for(int i = 0; i < kv.size(); i++) {
-			pi.set(i + l, kv[i].second);
+			pi[i + l] = kv[i].second;
 			if(i > 0 && kv[i].first != kv[i - 1].first) {
 				cells[c] = i + l;
 				c = i + l;

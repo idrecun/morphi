@@ -36,6 +36,24 @@ class permutation {
 			return ret;
 		}
 
+		class reference {
+			friend class permutation;
+
+			public:
+				reference& operator=(int oth) {
+					p.set(i, oth);
+					return *this;
+				}
+
+				operator int() const { return p.pi[i]; }
+
+			private:
+				reference(int i, permutation& p) : i(i), p(p) {}
+
+				int i;
+				permutation& p;
+		};
+
 		const vector<int>& p() const {
 			return pi;
 		}
@@ -50,6 +68,10 @@ class permutation {
 
 		int operator[](size_t i) const {
 			return pi[i];
+		}
+
+		reference operator[](size_t i) {
+			return reference(i, *this);
 		}
 
 		int set(size_t i, int val) {
