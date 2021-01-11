@@ -19,26 +19,38 @@ automorphism_set aut;
 
 vector<int> stabilized;
 
-void dfs(const graph& g, colouring pi, int v, int level) {//, int lmax_level) {
+void dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 
 	if(v >= 0)
 		stabilized.push_back(v);
 	pi.make_equitable(g, v);
 
 	uint32_t pi_phi = pi.invariant();
-	if(max_phi.size() > level && pi_phi < max_phi[level])
+	bool max_path = !(level > lmax_level + 1 || (max_phi.size() > level && pi_phi < max_phi[level]));
+	bool aut_path = !(fst_phi.size() <= level || pi_phi != fst_phi[level]);
+	if(!max_path && !aut_path)
 		return;
 
-	if(max_phi.size() > level && pi_phi > max_phi[level])
-		max_phi.resize(level);
+	if(max_path) {
+		lmax_level = level;
 
-	if(max_phi.size() <= level) {
-		max_phi.push_back(pi_phi);
-		max_perm.clear();
+		if(max_phi.size() > level && pi_phi > max_phi[level])
+			max_phi.resize(level);
+
+		if(max_phi.size() <= level) {
+			max_phi.push_back(pi_phi);
+			max_perm.clear();
+		}
 	}
 
+	if(fst_perm.empty())
+		fst_phi.push_back(pi_phi);
+
 	if(DEBUG) {
-		cout << string(level, '\t') << pi;
+		cout << string(level, '\t');
+		cout << (max_path ? "MAX" : "AUT");
+		cout << " ";
+		cout << pi;
 		cout << "   INV: ";
 		cout << pi_phi;
 		cout << '\n';
@@ -49,7 +61,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {//, int lmax_level) {
 		int v = cell[i];
 		colouring pi_v = pi;
 		pi_v.individualize(v);
-		dfs(g, pi_v, v, level + 1);
+		dfs(g, pi_v, v, level + 1, lmax_level);
 
 		if(i == 0 && cell.size() > 1) {
 			automorphism_set stabilizer = aut.stabilizer(stabilized);
@@ -65,7 +77,7 @@ void dfs(const graph& g, colouring pi, int v, int level) {//, int lmax_level) {
 	// Discrete colouring
 	if(cell.empty()) {
 		vector<bool> leaf_graph = g.permute(pi.p());
-		if(max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permute(max_perm)))
+		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permute(max_perm))))
 			max_perm = pi.p();
 
 		if(DEBUG) {
@@ -102,17 +114,12 @@ int main() {
 	}
 
 	colouring pi(n);
-
-	//pi.make_equitable(g);
-	//cout << pi << '\n';
-	
-	dfs(g, pi, -1, 0);
+	dfs(g, pi, -1, 0, -1);
 
 	vector<bool> canonical = g.permute(max_perm);
 	for(int b : canonical)
 		cout << b;
 	cout << '\n';
-	//cout << g.permute(max_perm) << '\n';
 
 	return 0;
 }
