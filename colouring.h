@@ -49,6 +49,12 @@ class colouring {
 		cells[i] = i + 1;
 	}
 
+	colouring individualized(int v) const {
+		colouring ret = *this;
+		ret.individualize(v);
+		return ret;
+	}
+
 	int refine_cell(int c, const graph& g, const vector<int>& W, bool upd_hash) {
 		if(cells[c] == -1)
 			return n;
