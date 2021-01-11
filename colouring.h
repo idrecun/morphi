@@ -63,6 +63,7 @@ class colouring {
 		vector< pair<int, int> > kv(r - l);
 		for(int i = 0; i < kv.size(); i++) {
 			kv[i].first = g.count(pi[i + l], W);
+			//kv[i].first = g.countD(pi[i + l], W);
 			kv[i].second = pi[i + l];
 		}
 		sort(kv.begin(), kv.end());

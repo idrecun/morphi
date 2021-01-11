@@ -6,7 +6,7 @@
 #include "colouring.h"
 #include "graph.h"
 
-#define DEBUG true
+#define DEBUG false
 #define SHOW_PHI true
 #define SHOW_TYPE true
 #define SHOW_CANON false
@@ -170,10 +170,11 @@ int main() {
 		cin >> u >> v;
 		g.insert(u, v);
 	}
+	//g.init_distances();
 
 	colouring pi(n);
 	dfs(g, pi, -1, 0, -1);
-	cout << '\n';
+	if(DEBUG) cout << '\n';
 
 	vector<bool> canonical = g.permute(max_perm);
 	for(int b : canonical)
