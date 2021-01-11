@@ -7,6 +7,11 @@
 #include "graph.h"
 
 #define DEBUG true
+#define SHOW_PHI true
+#define SHOW_TYPE true
+#define SHOW_CANON false
+#define SHOW_AUT true
+#define SHOW_BACKJUMP true
 #define NOAUT false
 #define NOPHI false
 
@@ -57,13 +62,13 @@ int dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 		fst_phi.push_back(pi_phi);
 
 	if(DEBUG) {
-		cout << string(level, '\t');
-		cout << (max_path ? "MAX" : "AUT");
-		cout << " ";
-		cout << pi;
-		cout << "   INV: ";
-		cout << pi_phi;
 		cout << '\n';
+
+		cout << string(level, '\t');
+		cout << pi;
+		
+		if(SHOW_PHI) cout << " [phi: " << pi_phi << "]";
+		if(SHOW_TYPE) cout << " [path: " << (max_path ? "MAX" : "AUT") << "]";
 	}
 
 	vector<int> cell = pi.cell_content(pi.target_cell());
@@ -103,11 +108,11 @@ int dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 	if(cell.empty()) {
 		vector<bool> leaf_graph = g.permute(pi.i());
 
-		if(DEBUG) {
-			cout << string(level, '\t');
+		if(DEBUG && SHOW_CANON) {
+			cout << " [canon: ";
 			for(int x : leaf_graph)
 				cout << x;
-			cout << '\n';
+			cout << ']';
 		}
 
 		// Check for maximal leaf
@@ -127,12 +132,12 @@ int dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 		if(leaf_graph == g.permute(fst_perm))
 			a = pi.i() * ~fst_perm;
 		
-		if(!a.empty()) {
+		if(!a.empty() && !(a == permutation(a.size()))) {
 
 			if(DEBUG) {
 				if(NOAUT)
 					return level;
-				cout << string(level, '\t') << "Automorphism detected: " << (pi.i() * ~fst_perm) << '\n';
+				if(SHOW_AUT) cout << " [aut: " << a << ']';
 			}
 
 			// Save automorphism
@@ -141,8 +146,8 @@ int dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 			// Backjump to fst_level if possible
 			vector<int> fst_mcr = aut.mcr();
 			if(!binary_search(fst_mcr.begin(), fst_mcr.end(), stabilized[fst_level + 1])) {
-				if(DEBUG)
-					cout << string(level, '\t') << "BACKJUMP to " << fst_level << '\n';
+				if(DEBUG && SHOW_BACKJUMP)
+					cout << " [BACKJUMP: " << fst_level << ']';
 				return fst_level;
 			}
 
@@ -168,6 +173,7 @@ int main() {
 
 	colouring pi(n);
 	dfs(g, pi, -1, 0, -1);
+	cout << '\n';
 
 	vector<bool> canonical = g.permute(max_perm);
 	for(int b : canonical)

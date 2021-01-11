@@ -36,6 +36,10 @@ class permutation {
 			return ret;
 		}
 
+		bool operator==(const permutation& oth) const {
+			return n == oth.n && pi == oth.pi;
+		}
+
 		class reference {
 			friend class permutation;
 
