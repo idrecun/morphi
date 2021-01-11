@@ -1,11 +1,14 @@
 #include <iostream>
 #include <vector>
 
+#include "algorithms.h"
 #include "automorphism_set.h"
 #include "colouring.h"
 #include "graph.h"
 
 #define DEBUG false
+#define NOAUT false
+#define NOPHI false
 
 using namespace std;
 
@@ -14,22 +17,23 @@ permutation max_perm;
 
 vector<uint32_t> fst_phi;
 permutation fst_perm;
+int fst_level;
 
 automorphism_set aut;
 
 vector<int> stabilized;
 
-void dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
+int dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 
-	if(v >= 0)
-		stabilized.push_back(v);
 	pi.make_equitable(g, v);
 
 	uint32_t pi_phi = pi.invariant();
+	if(DEBUG && NOPHI)
+		pi_phi = 0;
 	bool max_path = !(level > lmax_level + 1 || (max_phi.size() > level && pi_phi < max_phi[level]));
 	bool aut_path = !(fst_phi.size() <= level || pi_phi != fst_phi[level]);
 	if(!max_path && !aut_path)
-		return;
+		return level;
 
 	if(max_path) {
 		lmax_level = level;
@@ -57,20 +61,30 @@ void dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 	}
 
 	vector<int> cell = pi.cell_content(pi.target_cell());
+	vector<int> mcr = cell;
 	for(int i = 0; i < cell.size(); i++) {
 		int v = cell[i];
+		if(!binary_search(mcr.begin(), mcr.end(), v))
+			continue;
+
 		colouring pi_v = pi;
 		pi_v.individualize(v);
-		dfs(g, pi_v, v, level + 1, lmax_level);
 
-		if(i == 0 && cell.size() > 1) {
-			automorphism_set stabilizer = aut.stabilizer(stabilized);
-			if(!stabilizer.empty()) {
-				vector<int> mcr = stabilizer.mcr();
-				vector<int> intersect;
-				set_intersection(cell.begin(), cell.end(), mcr.begin(), mcr.end(), back_inserter(intersect));
-				cell = intersect;
-			}
+		stabilized.push_back(v);
+		int backjump = dfs(g, pi_v, v, level + 1, lmax_level);
+		stabilized.pop_back();
+
+		if(level > backjump)
+			return backjump;
+
+		if(level < fst_level)
+			fst_level = level;
+
+		if(level == backjump || (i == 0 && cell.size() > 1)) {
+			if(level == fst_level)
+				mcr = intersect(mcr, aut.mcr());
+			else
+				mcr = intersect(mcr, aut.stabilizer(stabilized).mcr());
 		}
 	}
 
@@ -88,19 +102,29 @@ void dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 		}
 
 		// Automorphism detected
-		if(fst_perm.empty())
+		if(fst_perm.empty()) {
 			fst_perm = pi.i();
+			fst_level = level;
+		}
 		else if(leaf_graph == g.permute(fst_perm)) {
-			if(g.permute(permutation(pi.p().size())) != g.permute(pi.i() * ~fst_perm))
-				cout << "problem";
 			aut.insert(pi.i() * ~fst_perm);
-			if(DEBUG)
-				cout << string(level, '\t') << "Automorphism detected: " << (pi.i() * ~fst_perm) << '\n';
+			if(DEBUG) {
+				if(NOAUT)
+					aut = automorphism_set(pi.p().size());
+				else
+					cout << string(level, '\t') << "Automorphism detected: " << (pi.i() * ~fst_perm) << '\n';
+			}
 			// dodati backjump ako je ispunjen uslov za teta
+			vector<int> fst_mcr = aut.mcr();
+			if(!binary_search(fst_mcr.begin(), fst_mcr.end(), stabilized[fst_level + 1])) {
+				if(DEBUG)
+					cout << string(level, '\t') << "BACKJUMP to " << fst_level << '\n';
+				return fst_level;
+			}
 		}
 	}
 
-	stabilized.pop_back();
+	return level;
 }
 
 int main() {

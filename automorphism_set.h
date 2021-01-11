@@ -61,7 +61,7 @@ class automorphism_set {
 		// O(n * t_stab) recimo
 		automorphism_set stabilizer(const vector<int>& sPoints) const {
 			if(sPoints.empty())
-				return automorphism_set();
+				return automorphism_set(n);
 
 			vector<int> intersect = stab[sPoints[0]];
 			for(int sPoint : sPoints) {
