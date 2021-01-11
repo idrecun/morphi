@@ -6,7 +6,7 @@
 #include "colouring.h"
 #include "graph.h"
 
-#define DEBUG false
+#define DEBUG true
 #define NOAUT false
 #define NOPHI false
 
@@ -121,25 +121,33 @@ int dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 		}
 
 		// Check for automorphism
-		if(leaf_graph == g.permute(fst_perm)) {
+		permutation a;
+		if(leaf_graph == g.permute(max_perm))
+			a = pi.i() * ~max_perm;
+		if(leaf_graph == g.permute(fst_perm))
+			a = pi.i() * ~fst_perm;
+		
+		if(!a.empty()) {
 
 			if(DEBUG) {
 				if(NOAUT)
-					aut = automorphism_set(pi.p().size());
-				else
-					cout << string(level, '\t') << "Automorphism detected: " << (pi.i() * ~fst_perm) << '\n';
+					return level;
+				cout << string(level, '\t') << "Automorphism detected: " << (pi.i() * ~fst_perm) << '\n';
 			}
 
 			// Save automorphism
-			aut.insert(pi.i() * ~fst_perm);
+			aut.insert(a);
 
-			// Backjump if possible
+			// Backjump to fst_level if possible
 			vector<int> fst_mcr = aut.mcr();
 			if(!binary_search(fst_mcr.begin(), fst_mcr.end(), stabilized[fst_level + 1])) {
 				if(DEBUG)
 					cout << string(level, '\t') << "BACKJUMP to " << fst_level << '\n';
 				return fst_level;
 			}
+
+			// Backjump to max_level otherwise
+			return lmax_level;
 		}
 	}
 
