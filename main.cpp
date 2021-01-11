@@ -76,9 +76,9 @@ void dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 
 	// Discrete colouring
 	if(cell.empty()) {
-		vector<bool> leaf_graph = g.permute(pi.p());
+		vector<bool> leaf_graph = g.permute(pi.i());
 		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permute(max_perm))))
-			max_perm = pi.p();
+			max_perm = pi.i();
 
 		if(DEBUG) {
 			cout << string(level, '\t');
@@ -89,11 +89,13 @@ void dfs(const graph& g, colouring pi, int v, int level, int lmax_level) {
 
 		// Automorphism detected
 		if(fst_perm.empty())
-			fst_perm = pi.p();
+			fst_perm = pi.i();
 		else if(leaf_graph == g.permute(fst_perm)) {
-			aut.insert(pi.p() * ~fst_perm);
+			if(g.permute(permutation(pi.p().size())) != g.permute(pi.i() * ~fst_perm))
+				cout << "problem";
+			aut.insert(pi.i() * ~fst_perm);
 			if(DEBUG)
-				cout << string(level, '\t') << "Automorphism detected: " << (pi.p() * ~fst_perm) << '\n';
+				cout << string(level, '\t') << "Automorphism detected: " << (pi.i() * ~fst_perm) << '\n';
 			// dodati backjump ako je ispunjen uslov za teta
 		}
 	}

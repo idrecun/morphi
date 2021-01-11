@@ -32,7 +32,7 @@ class permutation {
 		permutation operator*(const permutation& oth) const {
 			permutation ret(n);
 			for(int i = 0; i < n; i++)
-				ret.set(i, pi[oth[i]]);
+				ret.set(i, oth[pi[i]]);
 			return ret;
 		}
 

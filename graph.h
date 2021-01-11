@@ -32,8 +32,8 @@ public:
 		vector< vector<bool> > t_m(n, vector<bool>(n, 0));
 		for(int i = 0; i < n; i++)
 			for(int j = i + 1; j < n; j++) {
-				t_m[i][j] = m[pi[i]][pi[j]];
-				t_m[j][i] = m[pi[j]][pi[i]];
+				t_m[pi[i]][pi[j]] = m[i][j];
+				t_m[pi[j]][pi[i]] = m[j][i];
 			}
 		vector<bool> ret;
 		for(int i = 0; i < n; i++)

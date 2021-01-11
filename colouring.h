@@ -126,6 +126,10 @@ class colouring {
 		return pi;
 	}
 
+	permutation i() const {
+		return ~pi;
+	}
+
 	friend ostream& operator<<(ostream& out, const colouring& c);
 
 private:
