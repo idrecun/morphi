@@ -112,7 +112,7 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 
 	// Discrete colouring
 	if(cell.empty()) {
-		vector<bool> leaf_graph = g.permute(pi.i());
+		vector<bool> leaf_graph = g.permuted(pi.i());
 
 		if(VERBOSE && SHOW_CANON) {
 			cout << " [canon: ";
@@ -122,7 +122,7 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 		}
 
 		// Check for maximal leaf
-		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permute(max_perm))))
+		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permuted(max_perm))))
 			max_perm = pi.i();
 
 		// Check for first leaf
@@ -133,9 +133,9 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 
 		// Check for automorphism
 		permutation a;
-		if(leaf_graph == g.permute(max_perm))
+		if(leaf_graph == g.permuted(max_perm))
 			a = pi.i() * ~max_perm;
-		if(leaf_graph == g.permute(fst_perm))
+		if(leaf_graph == g.permuted(fst_perm))
 			a = pi.i() * ~fst_perm;
 		
 		if(!a.empty() && !(a == permutation(a.size()))) {
@@ -249,6 +249,11 @@ int main(int argc, char** argv) {
 	graph g;
 	cin >> g;
 
+	if(RELABEL) {
+		permutation relabel(g.v_count(), true);
+		g.relabel(relabel);
+	}
+
 	if(USE_DV)
 		g.init_distances();
 
@@ -259,7 +264,7 @@ int main(int argc, char** argv) {
 	dfs(g, pi, -1, 0, -1);
 	if(VERBOSE) cout << '\n';
 
-	vector<bool> canonical = g.permute(max_perm);
+	vector<bool> canonical = g.permuted(max_perm);
 	for(int b : canonical)
 		cout << b;
 	cout << '\n';

@@ -22,7 +22,8 @@ public:
 	void insert(int u, int v);
 	void init_distances();
 
-	vector<bool> permute(const permutation& pi) const;
+	vector<bool> permuted(const permutation& pi) const;
+	void relabel(const permutation& pi);
 
 	int v_count() const;
 

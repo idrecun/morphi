@@ -43,7 +43,7 @@ void graph::insert(int u, int v) {
 	}
 }
 
-vector<bool> graph::permute(const permutation& pi) const {
+vector<bool> graph::permuted(const permutation& pi) const {
 	vector<bool> ret(n * (n - 1) / 2);
 	int i = 0, j = 1;
 	for(int k = 0; k < ret.size(); k++) {
@@ -54,6 +54,20 @@ vector<bool> graph::permute(const permutation& pi) const {
 		}
 	}
 	return ret;
+}
+
+void graph::relabel(const permutation& pi) {
+	vector< pair<int, int> > edges;
+	for(int i = 0; i < n; i++)
+		g[i].clear();
+	for(int i = 0; i < n; i++)
+		for(int j = i + 1; j < n; j++) {
+			if(m[i][j])
+				edges.push_back({pi[i], pi[j]});
+			m[i][j] = m[j][i] = 0;
+		}
+	for(auto e : edges)
+		insert(e.first, e.second);
 }
 
 void graph::init_distances() {

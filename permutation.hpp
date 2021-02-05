@@ -10,7 +10,8 @@ using std::ostream;
 class permutation {
 	public:
 		permutation();
-		permutation(int n);
+		permutation(int n, bool random);
+		permutation(const vector<int>& v);
 
 		permutation operator~() const;
 		permutation operator*(const permutation&) const;
