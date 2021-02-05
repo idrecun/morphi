@@ -11,7 +11,11 @@ permutation::permutation() {
 	n = 0;
 }
 
-permutation::permutation(int n, bool random = false) {
+permutation::permutation(int n) {
+	permutation(n, false);
+}
+
+permutation::permutation(int n, bool random) {
 	this->n = n;
 	pi = vector<int>(n);
 	ip = vector<int>(n);

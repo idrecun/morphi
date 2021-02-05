@@ -10,6 +10,7 @@
 using std::vector;
 using std::queue;
 using std::string;
+using std::pair;
 
 graph::graph() {
 	n = 0;
