@@ -12,20 +12,11 @@ permutation::permutation() {
 }
 
 permutation::permutation(int n) {
-	permutation(n, false);
-}
-
-permutation::permutation(int n, bool random) {
 	this->n = n;
 	pi = vector<int>(n);
 	ip = vector<int>(n);
 	for(int i = 0; i < n; i++)
 		pi[i] = ip[i] = i;
-	if(random) {
-		random_shuffle(pi.begin(), pi.end());
-		for(int i = 0; i < n; i++)
-			ip[pi[i]] = i;
-	}
 }
 
 permutation::permutation(const vector<int>& v) {

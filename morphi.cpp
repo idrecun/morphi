@@ -248,16 +248,21 @@ int main(int argc, char** argv) {
 
 	graph g;
 	cin >> g;
+	int n = g.v_count();
 
 	if(RELABEL) {
-		permutation relabel(g.v_count(), true);
+		vector<int> v(n);
+		for(int i = 0; i < n; i++)
+			v[i] = i;
+		random_shuffle(v.begin(), v.end());
+
+		permutation relabel(v);
 		g.relabel(relabel);
 	}
 
 	if(USE_DV)
 		g.init_distances();
 
-	int n = g.v_count();
 	aut = automorphism_set(n);
 
 	colouring pi(n);
