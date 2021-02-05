@@ -15,7 +15,7 @@ using std::endl;
 
 colouring::colouring(int n) {
 	this->n = n;
-	hash = n;
+	inv = sequential_hash();
 	pi = permutation(n);
 	cells = vector<int>(n, -1);
 	cells[0] = n;
@@ -66,7 +66,7 @@ int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use
 			c = i + l;
 		}
 		if(upd_hash)
-			update_hash((uint32_t)kv[i].first);
+			inv.update(kv[i].first);
 	}
 	cells[c] = r;
 
@@ -110,9 +110,9 @@ void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = 
 		}
 	}
 
-	hash = n;
+	inv.update(n);
 	for(int i = 0; i != n; i = cells[i])
-		update_hash((uint32_t) i);
+		inv.update(i);
 }
 
 void colouring::make_equitable(const graph& g, int v, bool use_dv = false) {
@@ -123,7 +123,7 @@ void colouring::make_equitable(const graph& g, int v, bool use_dv = false) {
 }
 
 uint32_t colouring::invariant() const {
-	return hash;
+	return inv.value();
 }
 
 const permutation& colouring::p() const {
@@ -132,10 +132,6 @@ const permutation& colouring::p() const {
 
 permutation colouring::i() const {
 	return ~pi;
-}
-
-void colouring::update_hash(uint32_t val) {
-	hash ^= val + 0x9e3779b7 + (hash << 6) + (hash >> 2);
 }
 
 ostream& operator<<(ostream& out, const colouring& c) {

@@ -30,10 +30,10 @@ int graph::count(int v, const vector<int>& W) const {
 }
 
 uint32_t graph::dvector_hash(int v, const vector<int>& W) const {
-	uint32_t hash = 0;
+	multiset_hash h;
 	for(int w : W)
-		hash = (hash + modpow(1000003, d[v][w], 1000000007)) % 1000000007;
-	return hash;
+		h.update(d[v][w]);
+	return h.value();
 }
 
 void graph::insert(int u, int v) {

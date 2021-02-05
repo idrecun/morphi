@@ -7,6 +7,7 @@
 
 #include "graph.hpp"
 #include "permutation.hpp"
+#include "utility.hpp"
 
 using std::pair;
 using std::vector;
@@ -41,10 +42,8 @@ class colouring {
 
 private:
 
-	void update_hash(uint32_t val);
-
 	int n;
-	uint32_t hash;
+	sequential_hash inv;
 	permutation pi;
 	vector<int> cells;
 };
