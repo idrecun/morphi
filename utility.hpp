@@ -1,5 +1,5 @@
-#ifndef __ALGORITHMS_H__
-#define __ALGORITHMS_H__
+#ifndef __UTILITY_HPP__
+#define __UTILITY_HPP__
 
 #include <vector>
 #include <algorithm>
