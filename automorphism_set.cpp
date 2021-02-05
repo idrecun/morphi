@@ -3,6 +3,7 @@
 
 #include "automorphism_set.hpp"
 #include "permutation.hpp"
+#include "utility.hpp"
 
 using std::vector;
 using std::swap;
@@ -58,18 +59,14 @@ automorphism_set automorphism_set::stabilizer(const vector<int>& sPoints) const 
 	if(sPoints.empty())
 		return automorphism_set(n);
 
-	vector<int> intersect = stab[sPoints[0]];
-	for(int sPoint : sPoints) {
-		vector<int> intersect_r;
-		for(int aut : intersect)
-			if(binary_search(stab[sPoint].begin(), stab[sPoint].end(), aut))
-				intersect_r.push_back(aut);
-		intersect = intersect_r;
-	}
+	vector<int> stab_indices = stab[sPoints[0]];
+	for(int sPoint : sPoints)
+		stab_indices = intersect(stab_indices, stab[sPoint]);
 
 	automorphism_set ret(n);
-	for(int aut : intersect)
+	for(int aut : stab_indices)
 		ret.insert(auts[aut]);
+
 	return ret;
 }
 

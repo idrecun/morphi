@@ -34,6 +34,7 @@ uint32_t modpow(uint64_t a, uint32_t n, uint32_t m) {
 	return (uint32_t) res;
 }
 
+// Assumes that vectors represent sets and are sorted.
 vector<int> intersect(const vector<int>& a, const vector<int>& b) {
 	if(a.size() > b.size())
 			return intersect(b, a);
