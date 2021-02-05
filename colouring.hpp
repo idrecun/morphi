@@ -25,11 +25,10 @@ class colouring {
 	void individualize(int v);
 	colouring individualized(int v) const;
 
-	int refine_cell(int c, const graph& g, const vector<int>& W, bool upd_hash, bool use_dv);
+	int refine_cell(int c, const graph& g, const vector<int>& W, bool use_dv, bool upd_hash);
 
-	void make_equitable(const graph& g, vector<int> alpha);
-	void make_equitable(const graph& g);
-	void make_equitable(const graph& g, int v);
+	void make_equitable(const graph& g, vector<int> alpha, bool use_dv);
+	void make_equitable(const graph& g, int v, bool use_dv);
 
 	//vector<int> quotient(const graph& g) const;
 

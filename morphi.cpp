@@ -19,6 +19,9 @@ bool SHOW_BACKJUMP = false;
 bool NOAUT = false;
 bool NOINV = false;
 
+bool USE_DV = false;
+bool RELABEL = false;
+
 using namespace std;
 
 vector<uint32_t> max_phi;
@@ -34,7 +37,7 @@ vector<int> stabilized;
 
 int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 
-	pi.make_equitable(g, v);
+	pi.make_equitable(g, v, USE_DV);
 
 	uint32_t pi_phi = pi.invariant();
 
@@ -224,6 +227,10 @@ void parse_options(int argc, char** argv) {
 				SHOW_AUT = true; break;
 			case 'J':
 				SHOW_BACKJUMP = true; break;
+			case 'd':
+				USE_DV = true; break;
+			case 'r':
+				RELABEL = true; break;
 		}
 	if(VERBOSE) {
 		SHOW_COLOURING = !SHOW_COLOURING;
@@ -242,7 +249,8 @@ int main(int argc, char** argv) {
 	graph g;
 	cin >> g;
 
-	g.init_distances();
+	if(USE_DV)
+		g.init_distances();
 
 	int n = g.v_count();
 	aut = automorphism_set(n);

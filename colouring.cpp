@@ -50,7 +50,7 @@ colouring colouring::individualized(int v) const {
 	return ret;
 }
 
-int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool upd_hash, bool use_dv = true) {
+int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use_dv = false, bool upd_hash = true) {
 	if(cells[c] == -1)
 		return n;
 
@@ -84,7 +84,7 @@ int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool upd
 
 }*/
 
-void colouring::make_equitable(const graph& g, vector<int> alpha) {
+void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = false) {
 	vector<bool> alpha_set(n);
 	for(int v : alpha)
 		alpha_set[v] = true;
@@ -97,7 +97,7 @@ void colouring::make_equitable(const graph& g, vector<int> alpha) {
 
 		for(int l = 0, r; l < n; l = r) {
 			r = cells[l];
-			int skip_cell = refine_cell(l, g, W, true);
+			int skip_cell = refine_cell(l, g, W, use_dv);
 
 			if(alpha_set[l])
 				skip_cell = l;
@@ -115,12 +115,11 @@ void colouring::make_equitable(const graph& g, vector<int> alpha) {
 		update_hash((uint32_t) i);
 }
 
-void colouring::make_equitable(const graph& g) {
-	make_equitable(g, vector<int>({0}));
-}
-
-void colouring::make_equitable(const graph& g, int v) {
-	make_equitable(g, vector<int>({pi.i(v)}));
+void colouring::make_equitable(const graph& g, int v, bool use_dv = false) {
+	if(v == -1)
+		make_equitable(g, vector<int>({0}), use_dv);
+	else
+		make_equitable(g, vector<int>({pi.i(v)}), use_dv);
 }
 
 uint32_t colouring::invariant() const {

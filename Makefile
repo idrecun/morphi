@@ -1,6 +1,6 @@
 CXX=g++
 
-SOURCES=morphi.cpp automorphism_set.cpp colouring.cpp graph.cpp permutation.cpp
+SOURCES=morphi.cpp automorphism_set.cpp colouring.cpp graph.cpp permutation.cpp utility.cpp
 OBJECTS=$(subst .cpp,.o,$(SOURCES))
 
 all: morphi

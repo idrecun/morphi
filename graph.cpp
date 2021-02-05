@@ -5,6 +5,7 @@
 
 #include "graph.hpp"
 #include "permutation.hpp"
+#include "utility.hpp"
 
 using std::vector;
 using std::queue;
@@ -28,14 +29,9 @@ int graph::count(int v, const vector<int>& W) const {
 }
 
 uint32_t graph::dvector_hash(int v, const vector<int>& W) const {
-	vector<int> dists;
+	uint32_t hash = 0;
 	for(int w : W)
-		dists.push_back(d[v][w]);
-	sort(dists.begin(), dists.end());
-
-	uint32_t hash = dists.size();
-	for(int x : dists)
-		hash ^= (uint32_t) x + 0x9e3779b7 + (hash << 6) + (hash >> 2);
+		hash = (hash + modpow(1000003, d[v][w], 1000000007)) % 1000000007;
 	return hash;
 }
 
@@ -48,19 +44,6 @@ void graph::insert(int u, int v) {
 }
 
 vector<bool> graph::permute(const permutation& pi) const {
-	/*
-	vector< vector<bool> > t_m(n, vector<bool>(n, 0));
-	for(int i = 0; i < n; i++)
-		for(int j = i + 1; j < n; j++) {
-			t_m[pi[i]][pi[j]] = m[i][j];
-			t_m[pi[j]][pi[i]] = m[j][i];
-		}
-	vector<bool> ret;
-	for(int i = 0; i < n; i++)
-		for(int j = i + 1; j < n; j++)
-			ret.push_back(t_m[i][j]);
-	return ret;
-	*/
 	vector<bool> ret(n * (n - 1) / 2);
 	int i = 0, j = 1;
 	for(int k = 0; k < ret.size(); k++) {
@@ -78,8 +61,8 @@ void graph::init_distances() {
 	for(int i = 0; i < n; i++)
 		for(int j = i + 1; j < n; j++)
 			d[i][j] = d[j][i] = n;
+	queue<int> q;
 	for(int v = 0; v < n; v++) {
-		queue<int> q;
 		q.push(v);
 		while(!q.empty()) {
 			int u = q.front();

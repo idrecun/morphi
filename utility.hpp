@@ -2,19 +2,12 @@
 #define __UTILITY_HPP__
 
 #include <vector>
-#include <algorithm>
+#include <cstdint>
 
 using std::vector;
 
-vector<int> intersect(const vector<int>& a, const vector<int>& b) {
-	if(a.size() > b.size())
-			return intersect(b, a);
+uint32_t modpow(uint64_t a, int n, uint32_t m);
 
-	vector<int> ret;
-	for(int x : a)
-		if(binary_search(b.begin(), b.end(), x))
-			ret.push_back(x);
-	return ret;
-}
+vector<int> intersect(const vector<int>& a, const vector<int>& b);
 
 #endif
