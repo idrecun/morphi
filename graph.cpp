@@ -48,6 +48,7 @@ void graph::insert(int u, int v) {
 }
 
 vector<bool> graph::permute(const permutation& pi) const {
+	/*
 	vector< vector<bool> > t_m(n, vector<bool>(n, 0));
 	for(int i = 0; i < n; i++)
 		for(int j = i + 1; j < n; j++) {
@@ -58,6 +59,17 @@ vector<bool> graph::permute(const permutation& pi) const {
 	for(int i = 0; i < n; i++)
 		for(int j = i + 1; j < n; j++)
 			ret.push_back(t_m[i][j]);
+	return ret;
+	*/
+	vector<bool> ret(n * (n - 1) / 2);
+	int i = 0, j = 1;
+	for(int k = 0; k < ret.size(); k++) {
+		ret[k] = m[pi.i(i)][pi.i(j)];
+		if(++j == n) {
+			i++;
+			j = i + 1;
+		}
+	}
 	return ret;
 }
 

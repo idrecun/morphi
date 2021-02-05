@@ -50,19 +50,14 @@ colouring colouring::individualized(int v) const {
 	return ret;
 }
 
-int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool upd_hash, bool use_dv = false) {
+int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool upd_hash, bool use_dv = true) {
 	if(cells[c] == -1)
 		return n;
 
 	int l = c, r = cells[c];
 	vector< pair<int, int> > kv(r - l);
-	for(int i = 0; i < kv.size(); i++) {
-		if(use_dv)
-			kv[i].first = g.dvector_hash(pi[i + l], W);
-		else
-			kv[i].first = g.count(pi[i + l], W);
-		kv[i].second = pi[i + l];
-	}
+	for(int i = 0; i < kv.size(); i++)
+		kv[i] = { (use_dv ? g.dvector_hash(pi[i + l], W) : g.count(pi[i + l], W)), pi[i + l] };
 	sort(kv.begin(), kv.end());
 	for(int i = 0; i < kv.size(); i++) {
 		pi[i + l] = kv[i].second;
