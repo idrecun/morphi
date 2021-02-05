@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <getopt.h>
+#include <chrono>
 
 #include "utility.hpp"
 #include "automorphism_set.hpp"
@@ -23,6 +24,7 @@ bool USE_DV = false;
 bool RELABEL = false;
 
 using namespace std;
+using namespace std::chrono;
 
 vector<uint32_t> max_phi;
 permutation max_perm;
@@ -198,8 +200,8 @@ void parse_options(int argc, char** argv) {
 		{"print-aut",		no_argument,	0,	'A'},
 		{"print-backjump",	no_argument,	0,	'J'},
 
-		{"no-aut",			no_argument,	(int*)&NOAUT, 1},
-		{"no-inv",			no_argument,	(int*)&NOINV, 1},
+		{"no-aut",			no_argument,	0,	0},
+		{"no-inv",			no_argument,	0,	0},
 
 		{"use-distance",	no_argument,	0,	'd'},
 		//{"limit-aut",		required_argument,	0,	'l'},
@@ -211,6 +213,14 @@ void parse_options(int argc, char** argv) {
 	int c;
 	while((c = getopt_long(argc, argv, "vsCITMAJdl:r", long_options, &option_index)) != -1)
 		switch(c) {
+			case 0:
+				switch(option_index) {
+					case 8:
+						NOAUT = true; break;
+					case 9:
+						NOINV = true; break;
+				}
+				break;
 			case 'v':
 				VERBOSE = true; break;
 			case 's':
@@ -244,6 +254,7 @@ void parse_options(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
+	srand(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 	parse_options(argc, argv);
 
 	graph g;
