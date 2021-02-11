@@ -25,6 +25,9 @@ public:
 	vector<bool> permuted(const permutation& pi) const;
 	void relabel(const permutation& pi);
 
+	bool less(const permutation& a, const permutation& b) const;
+	bool is_aut(const permutation& a) const;
+
 	int v_count() const;
 
 	friend istream& operator>>(istream& in, graph& g);

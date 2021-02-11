@@ -114,9 +114,9 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 
 	// Discrete colouring
 	if(cell.empty()) {
-		vector<bool> leaf_graph = g.permuted(pi.i());
 
 		if(VERBOSE && SHOW_CANON) {
+			vector<bool> leaf_graph = g.permuted(pi.i());
 			cout << " [canon: ";
 			for(int x : leaf_graph)
 				cout << x;
@@ -124,7 +124,7 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 		}
 
 		// Check for maximal leaf
-		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && leaf_graph > g.permuted(max_perm))))
+		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && g.less(max_perm, pi.i()))))
 			max_perm = pi.i();
 
 		// Check for first leaf
@@ -135,9 +135,9 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 
 		// Check for automorphism
 		permutation a;
-		if(leaf_graph == g.permuted(max_perm))
+		if(g.is_aut(pi.i() * ~max_perm))
 			a = pi.i() * ~max_perm;
-		if(leaf_graph == g.permuted(fst_perm))
+		if(g.is_aut(pi.i() * ~fst_perm))
 			a = pi.i() * ~fst_perm;
 		
 		if(!a.empty() && !(a == permutation(a.size()))) {

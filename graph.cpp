@@ -71,6 +71,27 @@ void graph::relabel(const permutation& pi) {
 		insert(e.first, e.second);
 }
 
+bool graph::less(const permutation& a, const permutation& b) const {
+	for(int i = 0; i < n; i++)
+		for(int j = i + 1; j < n; j++) {
+			int aij = m[a.i(i)][a.i(j)];
+			int bij = m[b.i(i)][b.i(j)];
+			if(aij < bij)
+				return true;
+			else if(aij > bij)
+				return false;
+		}	
+	return false;
+}
+
+bool graph::is_aut(const permutation& a) const {
+	for(int i = 0; i < n; i++)
+		for(int j = i + 1; j < n; j++)
+			if(m[i][j] != m[a.i(i)][a.i(j)])
+				return false;
+	return true;
+}
+
 void graph::init_distances() {
 	d = m;
 	for(int i = 0; i < n; i++)
