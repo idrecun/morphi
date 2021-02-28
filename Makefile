@@ -6,10 +6,10 @@ OBJECTS=$(subst .cpp,.o,$(SOURCES))
 all: morphi
 
 morphi: $(OBJECTS)
-	$(CXX) $(OBJECTS) -o morphi -pg
+	$(CXX) -O3 $(OBJECTS) -o morphi -pg
 
 %.o: %.cpp %.hpp
-	$(CXX) -c $<
+	$(CXX) -O3 -c $<
 
 clean:
 	$(RM) $(OBJECTS)
