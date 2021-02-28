@@ -7,13 +7,17 @@
 #include "automorphism_set.hpp"
 #include "colouring.hpp"
 #include "graph.hpp"
+#include "search.hpp"
+
+using namespace std;
+using namespace std::chrono;
 
 // Traversal output options
 bool VERBOSE = false;
 bool SHOW_COLOURING = false;
 bool SHOW_INV = false;
 bool SHOW_TYPE = false;
-bool SHOW_CANON = false;
+bool SHOW_MATRIX = false;
 bool SHOW_AUT = false;
 bool SHOW_BACKJUMP = false;
 
@@ -23,151 +27,9 @@ bool NOINV = false;
 bool USE_DV = false;
 bool RELABEL = false;
 
-using namespace std;
-using namespace std::chrono;
-
-vector<uint32_t> max_phi;
-permutation max_perm;
-
-vector<uint32_t> fst_phi;
-permutation fst_perm;
-int fst_level;
-
-automorphism_set aut;
-
-vector<int> stabilized;
-
-int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
-
-	pi.make_equitable(g, v, USE_DV);
-
-	uint32_t pi_phi = pi.invariant();
-
-	if(NOINV)
-		pi_phi = 0;
-
-	// Prune by phi
-	bool max_path = !(level > max_level + 1 || (max_phi.size() > level && pi_phi < max_phi[level]));
-	bool aut_path = !(fst_phi.size() <= level || pi_phi != fst_phi[level]);
-
-	if(!max_path && !aut_path)
-		return level;
-
-	// Update max phi if necessary
-	if(max_path) {
-		max_level = level;
-
-		if(max_phi.size() > level && pi_phi > max_phi[level])
-			max_phi.resize(level);
-
-		if(max_phi.size() <= level) {
-			max_phi.push_back(pi_phi);
-			max_perm.clear();
-		}
-	}
-
-	// Update first phi if necessary
-	if(fst_perm.empty())
-		fst_phi.push_back(pi_phi);
-
-	if(VERBOSE) {
-		cout << '\n';
-		cout << string(level, '\t');
-
-		if(SHOW_COLOURING) cout << pi;
-		if(SHOW_INV) cout << " [phi: " << pi_phi << "]";
-		if(SHOW_TYPE) cout << " [path: " << (max_path ? "MAX" : "AUT") << "]";
-	}
-
-	vector<int> cell = pi.cell_content(pi.target_cell());
-	vector<int> mcr = cell; // For pruning by automorphisms
-	for(int i = 0; i < cell.size(); i++) {
-		int v = cell[i];
-
-		// Prune by automorphisms
-		if(!binary_search(mcr.begin(), mcr.end(), v))
-			continue;
-
-		// Add v to current path and search recursively
-		stabilized.push_back(v);
-		int backjump = dfs(g, pi.individualized(v), v, level + 1, max_level);
-		stabilized.pop_back();
-
-		// Backjump if necessary
-		if(level > backjump)
-			return backjump;
-
-		// Update lowest common ancestor of all leaves if necessary
-		if(level < fst_level)
-			fst_level = level;
-
-		// Update mcr for automorphism pruning if
-		// a) we just backjumped or
-		// b) we just finished traversing the first child
-		if(level == backjump || (i == 0 && cell.size() > 1)) {
-			if(level == fst_level)
-				mcr = intersect(mcr, aut.mcr());
-			else
-				mcr = intersect(mcr, aut.stabilizer(stabilized).mcr());
-		}
-	}
-
-	// Discrete colouring
-	if(cell.empty()) {
-
-		if(VERBOSE && SHOW_CANON) {
-			vector<bool> leaf_graph = g.permuted(pi.i());
-			cout << " [canon: ";
-			for(int x : leaf_graph)
-				cout << x;
-			cout << ']';
-		}
-
-		// Check for maximal leaf
-		if(max_path && (max_perm.empty() || (max_phi.size() == level + 1 && g.less(max_perm, pi.i()))))
-			max_perm = pi.i();
-
-		// Check for first leaf
-		if(fst_perm.empty()) {
-			fst_perm = pi.i();
-			fst_level = level;
-		}
-
-		// Check for automorphism
-		permutation a;
-		if(g.is_aut(pi.i() * ~max_perm))
-			a = pi.i() * ~max_perm;
-		if(g.is_aut(pi.i() * ~fst_perm))
-			a = pi.i() * ~fst_perm;
-		
-		if(!a.empty() && !(a == permutation(a.size()))) {
-
-			if(NOAUT)
-				return level;
-
-			if(VERBOSE && SHOW_AUT)
-				cout << " [aut: " << a << ']';
-
-			// Save automorphism
-			aut.insert(a);
-
-			// Backjump to fst_level if possible
-			vector<int> fst_mcr = aut.mcr();
-			if(!binary_search(fst_mcr.begin(), fst_mcr.end(), stabilized[fst_level + 1])) {
-				if(VERBOSE && SHOW_BACKJUMP)
-					cout << " [BACKJUMP: " << fst_level << ']';
-				return fst_level;
-			}
-
-			// Backjump to max_level otherwise
-			return max_level;
-		}
-	}
-
-	return level;
-}
-
 // Options:
+//
+// -h, --help				print options
 // 
 // Traversal output options:
 // -s, --silent				silent (print none) - default
@@ -188,9 +50,34 @@ int dfs(const graph& g, colouring pi, int v, int level, int max_level) {
 // input options:
 // -r, --relabel			random relabel input graph(s)
 
+string helpstring = 
+"-h, --help			Prints this message.\n"
+"\n"
+"Traversal output options:\n"
+"-s, --silent			Silent (print nothing during search) - this is the default printing option.\n"
+"-v, --verbose			Verbose (print everything during search) - flips all output option flags.\n"
+"-C, --print-colouring		Print colouring for each node in the search tree. Turns it off instead when using -v.\n"
+"-I, --print-invariant		Print invariant for each node in the search tree. Turns it off instead when using -v.\n"
+"-T, --print-type		Print path type for each node in the search tree. Turns it off instead when using -v.\n"
+"-M, --print-matrix		Print graph matrix for each leaf node in the search tree. Turns it off instead when using -v.\n"
+"-A, --print-aut			Print detected automorphisms. Turns it off instead when using -v.\n"
+"-J, --print-backjump		Print backjump points during search. Turns it off instead when using -v.\n"
+"\n"
+"Algorithm options:\n"
+"--no-aut			Disable automorphism detection and pruning.\n"
+"--no-inv			Disable invariant calculation and pruning.\n"
+"-d, --use-distance		Use distance vertex invariant.\n"
+"-l, --limit-aut			Automorphism limit (NOT IMPLEMENTED).\n"
+"\n"
+"Input options:\n"
+"-r, --relabel			Randomly relabel input graph.\n";
+
+
 void parse_options(int argc, char** argv) {
 	int option_index;
 	static option long_options[] = {
+		{"help",			no_argument,	0,	'h'},
+
 		{"silent",			no_argument,	0,	's'},
 		{"verbose",			no_argument,	0,	'v'},
 		{"print-colouring",	no_argument,	0,	'C'},
@@ -211,7 +98,7 @@ void parse_options(int argc, char** argv) {
 	};
 
 	int c;
-	while((c = getopt_long(argc, argv, "vsCITMAJdl:r", long_options, &option_index)) != -1)
+	while((c = getopt_long(argc, argv, "hvsCITMAJdl:r", long_options, &option_index)) != -1)
 		switch(c) {
 			case 0:
 				switch(option_index) {
@@ -221,6 +108,9 @@ void parse_options(int argc, char** argv) {
 						NOINV = true; break;
 				}
 				break;
+			case 'h':
+				cout << helpstring;
+				exit(EXIT_SUCCESS);
 			case 'v':
 				VERBOSE = true; break;
 			case 's':
@@ -232,7 +122,7 @@ void parse_options(int argc, char** argv) {
 			case 'T':
 				SHOW_TYPE = true; break;
 			case 'M':
-				SHOW_CANON = true; break;
+				SHOW_MATRIX = true; break;
 			case 'A':
 				SHOW_AUT = true; break;
 			case 'J':
@@ -246,11 +136,11 @@ void parse_options(int argc, char** argv) {
 		SHOW_COLOURING = !SHOW_COLOURING;
 		SHOW_INV = !SHOW_INV;
 		SHOW_TYPE = !SHOW_TYPE;
-		SHOW_CANON = !SHOW_CANON;
+		SHOW_MATRIX = !SHOW_MATRIX;
 		SHOW_AUT = !SHOW_AUT;
 		SHOW_BACKJUMP = !SHOW_BACKJUMP;
 	}
-	else VERBOSE = SHOW_COLOURING || SHOW_INV || SHOW_TYPE || SHOW_CANON || SHOW_AUT || SHOW_BACKJUMP;
+	else VERBOSE = SHOW_COLOURING || SHOW_INV || SHOW_TYPE || SHOW_MATRIX || SHOW_AUT || SHOW_BACKJUMP;
 }
 
 int main(int argc, char** argv) {
@@ -274,13 +164,9 @@ int main(int argc, char** argv) {
 	if(USE_DV)
 		g.init_distances();
 
-	aut = automorphism_set(n);
+	permutation canon = search(g);
 
-	colouring pi(n);
-	dfs(g, pi, -1, 0, -1);
-	if(VERBOSE) cout << '\n';
-
-	vector<bool> canonical = g.permuted(max_perm);
+	vector<bool> canonical = g.permuted(canon);
 	for(int b : canonical)
 		cout << b;
 	cout << '\n';
