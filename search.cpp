@@ -131,6 +131,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 		if(!fst_node.is_leaf()) {
 			fst_node.lca = level;
 			fst_node.set_leaf(pi.i());
+			return level;
 		}
 
 		if(NOAUT)
