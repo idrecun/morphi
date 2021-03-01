@@ -8,6 +8,9 @@ all: morphi
 morphi: $(OBJECTS)
 	$(CXX) -O3 $(OBJECTS) -o morphi -pg
 
+morphi.o: morphi.cpp
+	$(CXX) -O3 -c $<
+
 %.o: %.cpp %.hpp
 	$(CXX) -O3 -c $<
 
