@@ -104,6 +104,14 @@ size_t permutation::size() const {
 	return n;
 }
 
+vector<int> permutation::orbits() const {
+	vector<int> ret(n, n);
+	for(int i = 0; i < n; i++)
+		for(int j = i; ret[j] > i; j = pi[j])
+			ret[j] = i;
+	return ret;
+}
+
 ostream& operator<<(ostream& out, const permutation& p) {
 	if(p.n > 0) {
 		for(int i = 0; i < p.n - 1; i++)

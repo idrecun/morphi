@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include "permutation.hpp"
 
 using std::vector;
 
@@ -24,8 +25,11 @@ class multiset_hash : public hash {
 		void update(uint32_t) override;
 };
 
-uint32_t modpow(uint64_t a, uint32_t n, uint32_t m);
+uint32_t modpow(uint32_t a, uint32_t n);
 
 vector<int> intersect(const vector<int>& a, const vector<int>& b);
+
+vector<int> merge_orbits(const permutation& a, const permutation& b);
+permutation from_orbits(const vector<int>& orbit);
 
 #endif

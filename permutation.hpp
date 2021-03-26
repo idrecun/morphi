@@ -47,6 +47,8 @@ class permutation {
 		bool empty() const;
 		size_t size() const;
 
+		vector<int> orbits() const;
+
 		friend ostream& operator<<(ostream& out, const permutation& p);
 
 	private:

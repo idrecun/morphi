@@ -7,6 +7,7 @@
 
 using std::vector;
 using std::swap;
+using std::min;
 
 automorphism_set::automorphism_set() {
 	n = 0;
@@ -15,24 +16,19 @@ automorphism_set::automorphism_set() {
 automorphism_set::automorphism_set(size_t n) {
 	this->n = n;
 	stab = vector< vector<int> >(n);
-	imcr = vector< vector<int> >(n);
+	orbit = vector<int>(n);
+	for(int i = 0; i < n; i++)
+		orbit[i] = i;
+	orbit_permutation = permutation(orbit);
 }
 
 void automorphism_set::insert(const permutation& aut) {
-	vector<bool> is_mcr(n, true);
-	vector<int> mcr;
-	for(int i = 0; i < n; i++) {
+	orbit = merge_orbits(orbit_permutation, aut);
+	orbit_permutation = from_orbits(orbit);
+
+	for(int i = 0; i < n; i++)
 		if(aut[i] == i)
 			stab[i].push_back(auts.size());
-		if(is_mcr[i]) {
-			for(int j = aut[i]; j != i; j = aut[j])
-				is_mcr[j] = false;
-			mcr.push_back(i);
-		}
-	}
-
-	for(int v : mcr)
-		imcr[v].push_back(auts.size());
 
 	auts.push_back(aut);
 }
@@ -41,9 +37,13 @@ void automorphism_set::insert(const permutation& aut) {
 vector<int> automorphism_set::mcr() const {
 	vector<int> mcr;
 	for(int i = 0; i < n; i++)
-		if(imcr[i].size() == auts.size())
+		if(orbit[i] == i)
 			mcr.push_back(i);
 	return mcr;
+}
+
+bool automorphism_set::is_mcr(int v) const {
+	return orbit[v] == v;
 }
 
 // O(n * t_stab)

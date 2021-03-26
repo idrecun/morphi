@@ -155,6 +155,8 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 				if(SHOW_BACKJUMP) cout << " [BACKJUMP: " << max_node.lca << ']';
 			}
 			aut.insert(a);
+			if(aut.is_mcr(stabilized[fst_node.lca + 1]))
+				return fst_node.lca;
 			return max_node.lca;
 		}
 	}
