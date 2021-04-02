@@ -63,17 +63,12 @@ vector<int> merge_orbits(const permutation& a, const permutation& b) {
 		if(orbit[i] != i)
 			continue;
 		q[cnt++] = i;
-		for(int j = cnt - 1; j < cnt; j++) {
-			int anext = a[q[j]], bnext = b[q[j]];
-			if(orbit[anext] != i) {
-				orbit[anext] = i;
-				q[cnt++] = anext;
-			}
-			if(orbit[bnext] != i) {
-				orbit[bnext] = i;
-				q[cnt++] = bnext;
-			}
-		}
+		for(int j = cnt - 1; j < cnt; j++)
+			for(int next : {a[q[j]], b[q[j]]})
+				if(orbit[next] != i) {
+					orbit[next] = i;
+					q[cnt++] = next;
+				}
 	}
 
 	return orbit;
