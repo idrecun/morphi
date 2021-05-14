@@ -65,8 +65,8 @@ int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use
 			cells[c] = i + l;
 			c = i + l;
 		}
-		if(upd_hash)
-			inv.update(kv[i].first);
+		//if(upd_hash)
+			//inv.update(kv[i].first);
 	}
 	cells[c] = r;
 
@@ -78,13 +78,12 @@ int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use
 	return max_cell;
 }
 
-/*vector<int> quotient(const graph& g) const {
-	int k = count_if(cells.begin(), cells.end(), [](int c) { return c != -1; });
-	vector<int> q(k * (k - 1) / 2);
-
-}*/
-
 void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = false) {
+	// Store colouring for invariant calculation
+	vector<bool> input_colouring(n);
+	for(int i = 0; i != n; i = cells[i])
+		input_colouring[i] = true;
+
 	vector<bool> alpha_set(n);
 	for(int v : alpha)
 		alpha_set[v] = true;
@@ -93,7 +92,6 @@ void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = 
 		vector<int> W = cell_content(alpha.back());
 		alpha_set[alpha.back()] = false;
 		alpha.pop_back();
-
 
 		for(int l = 0, r; l < n; l = r) {
 			r = cells[l];
@@ -110,9 +108,22 @@ void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = 
 		}
 	}
 
-	inv.update(n);
+	// Calculate invariant
+	vector<int> new_cells;
 	for(int i = 0; i != n; i = cells[i])
-		inv.update(i);
+		if(!input_colouring[i] || (cells[i] < n && !input_colouring[cells[i]]))
+			new_cells.push_back(i);
+
+	for(int i = 0; i < new_cells.size(); i++) {
+		int cell = new_cells[i];
+		inv.update(cell);
+		inv.update(cells[cell]);
+		vector<int> W = cell_content(cell);
+		for(int j = 0; j <= i; j++) {
+			int cell2 = new_cells[j];
+			inv.update(g.count(pi[cell2], W));
+		}
+	}
 }
 
 void colouring::make_equitable(const graph& g, int v, bool use_dv = false) {
