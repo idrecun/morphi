@@ -7,6 +7,7 @@
 #include "automorphism_set.hpp"
 #include "colouring.hpp"
 #include "graph.hpp"
+#include "graph_invariant.hpp"
 #include "search.hpp"
 
 using namespace std;
@@ -149,6 +150,7 @@ int main(int argc, char** argv) {
 
 	graph g;
 	cin >> g;
+
 	int n = g.v_count();
 
 	if(RELABEL) {
@@ -161,8 +163,10 @@ int main(int argc, char** argv) {
 		g.relabel(relabel);
 	}
 
-	if(USE_DV)
-		g.init_distances();
+	if(!USE_DV)
+		g.set_invariant(make_unique<invariant_adjacent>(g));
+	else
+		g.set_invariant(make_unique<invariant_distance>(g));
 
 	permutation canon = search(g);
 

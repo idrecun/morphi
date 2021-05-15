@@ -38,7 +38,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 
 	int level = stabilized.size();
 	int v = level == 0 ? -1 : stabilized.back();
-	pi.make_equitable(g, v, USE_DV);
+	pi.make_equitable(g, v);
 
 	uint32_t pi_phi = pi.invariant();
 

@@ -4,23 +4,26 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include <memory>
 
 #include "permutation.hpp"
 
 using std::vector;
 using std::queue;
 using std::istream;
+using std::unique_ptr;
+
+class graph_invariant;
 
 class graph {
 public:
 	graph();
 	graph(int);
 
-	int count(int v, const vector<int>& W) const;
-	uint32_t dvector_hash(int v, const vector<int>& W) const;
+	void set_invariant(unique_ptr<graph_invariant> invariant);
+	uint32_t get_invariant(int v, const vector<int>& W) const;
 
 	void insert(int u, int v);
-	void init_distances();
 
 	vector<bool> permuted(const permutation& pi) const;
 	void relabel(const permutation& pi);
@@ -29,14 +32,17 @@ public:
 	bool is_aut(const permutation& a) const;
 
 	int v_count() const;
+	bool adjacent(int u, int v) const;
+	const vector< vector<int> >& adjacency_matrix() const;
+	const vector< vector<int> >& adjacency_vector() const;
 
 	friend istream& operator>>(istream& in, graph& g);
 
 private:
-	int n;
-	vector< vector<int> > m;
-	vector< vector<int> > g;
-	vector< vector<int> > d;
+	int vertex_count;
+	vector< vector<int> > adj_matrix;
+	vector< vector<int> > adj_vector;
+	unique_ptr<graph_invariant> invariant;
 };
 
 #endif

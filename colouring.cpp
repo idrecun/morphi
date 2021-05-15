@@ -50,14 +50,14 @@ colouring colouring::individualized(int v) const {
 	return ret;
 }
 
-int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use_dv = false, bool upd_hash = true) {
+int colouring::refine_cell(int c, const graph& g, const vector<int>& W) {
 	if(cells[c] == -1)
 		return n;
 
 	int l = c, r = cells[c];
 	vector< pair<int, int> > kv(r - l);
 	for(int i = 0; i < kv.size(); i++)
-		kv[i] = { (use_dv ? g.dvector_hash(pi[i + l], W) : g.count(pi[i + l], W)), pi[i + l] };
+		kv[i] = { g.get_invariant(pi[i + l], W), pi[i + l] };
 	sort(kv.begin(), kv.end());
 	for(int i = 0; i < kv.size(); i++) {
 		pi[i + l] = kv[i].second;
@@ -65,8 +65,7 @@ int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use
 			cells[c] = i + l;
 			c = i + l;
 		}
-		//if(upd_hash)
-			//inv.update(kv[i].first);
+		//inv.update(kv[i].first);
 	}
 	cells[c] = r;
 
@@ -78,12 +77,14 @@ int colouring::refine_cell(int c, const graph& g, const vector<int>& W, bool use
 	return max_cell;
 }
 
-void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = false) {
+void colouring::make_equitable(const graph& g, int v) {
+
 	// Store colouring for invariant calculation
 	vector<bool> input_colouring(n);
 	for(int i = 0; i != n; i = cells[i])
 		input_colouring[i] = true;
 
+	vector<int> alpha(1, v == -1 ? 0 : pi.i(v));
 	vector<bool> alpha_set(n);
 	for(int v : alpha)
 		alpha_set[v] = true;
@@ -95,7 +96,7 @@ void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = 
 
 		for(int l = 0, r; l < n; l = r) {
 			r = cells[l];
-			int skip_cell = refine_cell(l, g, W, use_dv);
+			int skip_cell = refine_cell(l, g, W);
 
 			if(alpha_set[l])
 				skip_cell = l;
@@ -121,16 +122,9 @@ void colouring::make_equitable(const graph& g, vector<int> alpha, bool use_dv = 
 		vector<int> W = cell_content(cell);
 		for(int j = 0; j <= i; j++) {
 			int cell2 = new_cells[j];
-			inv.update(g.count(pi[cell2], W));
+			inv.update(g.get_invariant(pi[cell2], W));
 		}
 	}
-}
-
-void colouring::make_equitable(const graph& g, int v, bool use_dv = false) {
-	if(v == -1)
-		make_equitable(g, vector<int>({0}), use_dv);
-	else
-		make_equitable(g, vector<int>({pi.i(v)}), use_dv);
 }
 
 uint32_t colouring::invariant() const {
