@@ -21,6 +21,15 @@ class invariant_adjacent : public graph_invariant {
 		uint32_t get(int v, const cell_data& W) const override;
 	private:
 		const graph& g;
+};
+
+class invariant_bitvector : public graph_invariant {
+	public:
+		invariant_bitvector(const graph& g);
+		void calculate() override;
+		uint32_t get(int v, const cell_data& W) const override;
+	private:
+		const graph& g;
 		vector< vector<uint64_t> > adjacency_bitvector;
 };
 

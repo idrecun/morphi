@@ -8,7 +8,21 @@ invariant_adjacent::invariant_adjacent(const graph& g) : g(g) {
 	calculate();
 }
 
-void invariant_adjacent::calculate() {
+void invariant_adjacent::calculate() { }
+
+uint32_t invariant_adjacent::get(int v, const cell_data& W) const {
+	int cnt = 0;
+	for(auto w : W.vertices)
+		cnt += g.adjacent(v, w);
+	return cnt;
+}
+
+
+invariant_bitvector::invariant_bitvector(const graph& g) : g(g) {
+	calculate();
+}
+
+void invariant_bitvector::calculate() {
 	adjacency_bitvector = vector< vector<uint64_t> >(g.v_count(), vector<uint64_t>((g.v_count() + 63) / 64));
 	for(int i = 0; i < g.v_count(); i++)
 		for(int j = 0; j < g.v_count(); j++)
@@ -16,13 +30,12 @@ void invariant_adjacent::calculate() {
 				adjacency_bitvector[i][j / 64] |= 1ull << (j % 64);
 }
 
-uint32_t invariant_adjacent::get(int v, const cell_data& W) const {
+uint32_t invariant_bitvector::get(int v, const cell_data& W) const {
 	int cnt = 0;
 	for(auto w : W.bitvector)
 		cnt += __builtin_popcountll(w.val & adjacency_bitvector[v][w.idx]);
 	return cnt;
 }
-
 
 
 invariant_distance::invariant_distance(const graph& g) : g(g) {

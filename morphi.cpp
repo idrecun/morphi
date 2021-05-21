@@ -25,7 +25,9 @@ bool SHOW_BACKJUMP = false;
 bool NOAUT = false;
 bool NOINV = false;
 
-bool USE_DV = false;
+bool GINV_DIST = false;
+bool GINV_NOBIT = false;
+
 bool RELABEL = false;
 
 // Options:
@@ -45,7 +47,8 @@ bool RELABEL = false;
 // Algorithm options:
 // --no-aut					no automorphisms
 // --no-inv					no phi (invariant equal everywhere)
-// -d, --use-distance		use distance matrix for equitable colourings
+// -d, --invariant-distance	Use distance vertex invariant
+// -b, --invariant-nobits	Use adjacency vertex invariant without bitvectors
 // -l, --limit-aut			automorphism limit?
 //
 // input options:
@@ -67,7 +70,8 @@ string helpstring =
 "Algorithm options:\n"
 "--no-aut			Disable automorphism detection and pruning.\n"
 "--no-inv			Disable invariant calculation and pruning.\n"
-"-d, --use-distance		Use distance vertex invariant.\n"
+"-d, --invariant-distance		Use distance vertex invariant.\n"
+"-b, --invariant-nobits		Use adjacency vertex invariant without bitvectors.\n"
 "-l, --limit-aut			Automorphism limit (NOT IMPLEMENTED).\n"
 "\n"
 "Input options:\n"
@@ -79,27 +83,28 @@ void parse_options(int argc, char** argv) {
 	static option long_options[] = {
 		{"help",			no_argument,	0,	'h'},
 
-		{"silent",			no_argument,	0,	's'},
-		{"verbose",			no_argument,	0,	'v'},
-		{"print-colouring",	no_argument,	0,	'C'},
-		{"print-invariant",	no_argument,	0,	'I'},
-		{"print-type",		no_argument,	0,	'T'},
-		{"print-matrix",	no_argument,	0,	'M'},
-		{"print-aut",		no_argument,	0,	'A'},
-		{"print-backjump",	no_argument,	0,	'J'},
+		{"silent",				no_argument,	0,	's'},
+		{"verbose",				no_argument,	0,	'v'},
+		{"print-colouring",		no_argument,	0,	'C'},
+		{"print-invariant",		no_argument,	0,	'I'},
+		{"print-type",			no_argument,	0,	'T'},
+		{"print-matrix",		no_argument,	0,	'M'},
+		{"print-aut",			no_argument,	0,	'A'},
+		{"print-backjump",		no_argument,	0,	'J'},
 
-		{"no-aut",			no_argument,	0,	0},
-		{"no-inv",			no_argument,	0,	0},
+		{"no-aut",				no_argument,	0,	0},
+		{"no-inv",				no_argument,	0,	0},
 
-		{"use-distance",	no_argument,	0,	'd'},
+		{"invariant-nobits",	no_argument,	0,	'b'},
+		{"invariant-distance",	no_argument,	0,	'd'},
 		//{"limit-aut",		required_argument,	0,	'l'},
 
-		{"relabel",			no_argument,	0,	'r'},
-		{0,					0,				0,	0}
+		{"relabel",				no_argument,	0,	'r'},
+		{0,						0,				0,	0}
 	};
 
 	int c;
-	while((c = getopt_long(argc, argv, "hvsCITMAJdl:r", long_options, &option_index)) != -1)
+	while((c = getopt_long(argc, argv, "hvsCITMAJdbl:r", long_options, &option_index)) != -1)
 		switch(c) {
 			case 0:
 				switch(option_index) {
@@ -129,7 +134,9 @@ void parse_options(int argc, char** argv) {
 			case 'J':
 				SHOW_BACKJUMP = true; break;
 			case 'd':
-				USE_DV = true; break;
+				GINV_DIST = true; break;
+			case 'b':
+				GINV_NOBIT = true; break;
 			case 'r':
 				RELABEL = true; break;
 		}
@@ -163,10 +170,9 @@ int main(int argc, char** argv) {
 		g.relabel(relabel);
 	}
 
-	if(!USE_DV)
-		g.set_invariant(make_unique<invariant_adjacent>(g));
-	else
-		g.set_invariant(make_unique<invariant_distance>(g));
+	g.set_invariant(make_unique<invariant_bitvector>(g));
+	if(GINV_NOBIT)	g.set_invariant(make_unique<invariant_adjacent>(g));
+	if(GINV_DIST)	g.set_invariant(make_unique<invariant_distance>(g));
 
 	permutation canon = search(g);
 
