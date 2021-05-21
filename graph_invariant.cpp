@@ -2,19 +2,28 @@
 
 #include "utility.hpp"
 #include "graph_invariant.hpp"
+#include "colouring.hpp"
 
 invariant_adjacent::invariant_adjacent(const graph& g) : g(g) {
 	calculate();
 }
 
-void invariant_adjacent::calculate() { }
+void invariant_adjacent::calculate() {
+	adjacency_bitvector = vector< vector<uint64_t> >(g.v_count(), vector<uint64_t>((g.v_count() + 63) / 64));
+	for(int i = 0; i < g.v_count(); i++)
+		for(int j = 0; j < g.v_count(); j++)
+			if(g.adjacent(i, j))
+				adjacency_bitvector[i][j / 64] |= 1ull << (j % 64);
+}
 
-uint32_t invariant_adjacent::get(int v, const vector<int>& W) const {
+uint32_t invariant_adjacent::get(int v, const cell_data& W) const {
 	int cnt = 0;
-	for(int w : W)
-		cnt += g.adjacent(v, w);
+	for(auto w : W.bitvector)
+		cnt += __builtin_popcountll(w.val & adjacency_bitvector[v][w.idx]);
 	return cnt;
 }
+
+
 
 invariant_distance::invariant_distance(const graph& g) : g(g) {
 	calculate();
@@ -44,9 +53,9 @@ void invariant_distance::calculate() {
 	}
 }
 
-uint32_t invariant_distance::get(int v, const vector<int>& W) const {
+uint32_t invariant_distance::get(int v, const cell_data& W) const {
 	multiset_hash h;
-	for(int w : W)
+	for(auto w : W.vertices)
 		h.update(distance_matrix[v][w]);
 	return h.value();
 }

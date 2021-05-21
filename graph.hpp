@@ -14,6 +14,7 @@ using std::istream;
 using std::unique_ptr;
 
 class graph_invariant;
+struct cell_data;
 
 class graph {
 public:
@@ -21,7 +22,7 @@ public:
 	graph(int);
 
 	void set_invariant(unique_ptr<graph_invariant> invariant);
-	uint32_t get_invariant(int v, const vector<int>& W) const;
+	uint32_t get_invariant(int v, const cell_data& W) const;
 
 	void insert(int u, int v);
 

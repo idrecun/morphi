@@ -21,17 +21,28 @@ colouring::colouring(int n) {
 	cells[0] = n;
 }
 
+cell_data colouring::cell_content(int cell) const {
+	cell_data W;
+	if(cell < 0 || cell >= n || cells[cell] == -1)
+		return W;
+
+	W.vertices = vector<int>(next(pi.p().begin(), cell), next(pi.p().begin(), cells[cell]));
+
+	for(int w : W.vertices) {
+		int idx = w / 64;
+		if(W.bitvector.empty() || W.bitvector.back().idx != idx)
+			W.bitvector.push_back({idx, 0ull});
+		W.bitvector.back().val |= (1ull << (w % 64));
+	}
+
+	return W;
+}
+
 int colouring::target_cell() const {
 	int i = 0;
 	while(i < n && cells[i] == i + 1)
 		i = cells[i];
 	return i;
-}
-
-vector<int> colouring::cell_content(int i) const {
-	if(i < 0 || i >= n || cells[i] == -1)
-		return vector<int>();
-	return vector<int>(next(pi.p().begin(), i), next(pi.p().begin(), cells[i]));
 }
 
 void colouring::individualize(int v) {
@@ -50,7 +61,7 @@ colouring colouring::individualized(int v) const {
 	return ret;
 }
 
-int colouring::refine_cell(int c, const graph& g, const vector<int>& W) {
+int colouring::refine_cell(int c, const graph& g, const cell_data& W) {
 	if(cells[c] == -1)
 		return n;
 
@@ -90,7 +101,8 @@ void colouring::make_equitable(const graph& g, int v) {
 		alpha_set[v] = true;
 
 	while(!alpha.empty()) {
-		vector<int> W = cell_content(alpha.back());
+		cell_data W = cell_content(alpha.back());
+
 		alpha_set[alpha.back()] = false;
 		alpha.pop_back();
 
@@ -119,7 +131,7 @@ void colouring::make_equitable(const graph& g, int v) {
 		int cell = new_cells[i];
 		inv.update(cell);
 		inv.update(cells[cell]);
-		vector<int> W = cell_content(cell);
+		cell_data W = cell_content(cell);
 		for(int j = 0; j <= i; j++) {
 			int cell2 = new_cells[j];
 			inv.update(g.get_invariant(pi[cell2], W));

@@ -31,7 +31,7 @@ void graph::set_invariant(unique_ptr<graph_invariant> new_invariant) {
 	this->invariant = move(new_invariant);
 }
 
-uint32_t graph::get_invariant(int v, const vector<int>& W) const {
+uint32_t graph::get_invariant(int v, const cell_data& W) const {
 	return invariant->get(v, W);
 }
 

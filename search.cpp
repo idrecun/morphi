@@ -79,7 +79,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 		if(SHOW_TYPE) cout << " [path: " << (max_path ? "MAX" : "AUT") << "]";
 	}
 
-	vector<int> cell = pi.cell_content(pi.target_cell());
+	vector<int> cell = pi.cell_content(pi.target_cell()).vertices;
 	vector<int> mcr = cell; // For pruning by automorphism
 	for(int i = 0; i < cell.size(); i++) {
 		int v = cell[i];
