@@ -64,6 +64,8 @@ colouring colouring::individualized(int v) const {
 int colouring::refine_cell(int c, const graph& g, const cell_data& W) {
 	if(cells[c] == -1)
 		return n;
+	if(cells[c] == c + 1)
+		return c;
 
 	int l = c, r = cells[c];
 	vector< pair<int, int> > kv(r - l);
@@ -90,10 +92,14 @@ int colouring::refine_cell(int c, const graph& g, const cell_data& W) {
 
 void colouring::make_equitable(const graph& g, int v) {
 
-	// Store colouring for invariant calculation
+	// Store colouring for invariant calculation ...
 	vector<bool> input_colouring(n);
 	for(int i = 0; i != n; i = cells[i])
 		input_colouring[i] = true;
+
+	// ... and undo individualization
+	if(v != -1)
+		input_colouring[pi.i(v) + 1] = false; 
 
 	vector<int> alpha(1, v == -1 ? 0 : pi.i(v));
 	vector<bool> alpha_set(n);
