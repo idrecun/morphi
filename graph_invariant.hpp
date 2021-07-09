@@ -43,4 +43,15 @@ class invariant_distance : public graph_invariant {
 		vector< vector<int> > distance_matrix;
 };
 
+class invariant_paths : public graph_invariant {
+	public:
+		invariant_paths(const graph& g, int d);
+		void calculate() override;
+		uint32_t get(int v, const cell_data& W) const override;
+	private:
+		int d;
+		const graph& g;
+		vector< vector<uint32_t> > path_matrix;
+};
+
 #endif

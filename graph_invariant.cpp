@@ -4,6 +4,7 @@
 #include "graph_invariant.hpp"
 #include "colouring.hpp"
 
+// Standard invariant - adjacency matrix
 invariant_adjacent::invariant_adjacent(const graph& g) : g(g) {
 	calculate();
 }
@@ -18,6 +19,7 @@ uint32_t invariant_adjacent::get(int v, const cell_data& W) const {
 }
 
 
+// Default invariant - adjacency matrix with bitvectors
 invariant_bitvector::invariant_bitvector(const graph& g) : g(g) {
 	calculate();
 }
@@ -38,6 +40,7 @@ uint32_t invariant_bitvector::get(int v, const cell_data& W) const {
 }
 
 
+// Distance invariant
 invariant_distance::invariant_distance(const graph& g) : g(g) {
 	calculate();
 }
@@ -70,5 +73,51 @@ uint32_t invariant_distance::get(int v, const cell_data& W) const {
 	multiset_hash h;
 	for(auto w : W.vertices)
 		h.update(distance_matrix[v][w]);
+	return h.value();
+}
+
+
+// Path count invariant
+invariant_paths::invariant_paths(const graph& g, int d) : g(g) {
+	this->d = d;
+	calculate();
+}
+
+void invariant_paths::calculate() {
+	int vertex_count = g.v_count();
+	path_matrix = vector< vector<uint32_t> >(vertex_count, vector<uint32_t>(vertex_count));
+	for(int i = 0; i < vertex_count; i++)
+		for(int j = 0; j < vertex_count; j++)
+			path_matrix[i][j] = g.adjacent(i, j);
+	vector< vector<uint32_t> > tmp_matrix(vertex_count, vector<uint32_t>(vertex_count));
+
+	for(int c = 1; c < d; c++) {
+		tmp_matrix = vector< vector<uint32_t> >(vertex_count, vector<uint32_t>(vertex_count));
+		for(int k = 0; k < vertex_count; k++)
+			for(int i = 0; i < vertex_count; i++)
+				if(g.adjacent(i, k))
+					for(int j = 0; j < vertex_count; j++)
+						tmp_matrix[i][j] += path_matrix[k][j];
+		for(int i = 0; i < vertex_count; i++)
+			for(int j = 0; j < vertex_count; j++)
+				path_matrix[i][j] = tmp_matrix[i][j];
+	}
+
+	vector<uint32_t> sorted(vertex_count * vertex_count);
+	for(int i = 0; i < vertex_count; i++)
+		for(int j = 0; j < vertex_count; j++)
+			sorted[i * vertex_count + j] = path_matrix[i][j];
+
+	sort(sorted.begin(), sorted.end());
+
+	for(int i = 0; i < vertex_count; i++)
+		for(int j = 0; j < vertex_count; j++)
+			path_matrix[i][j] = lower_bound(sorted.begin(), sorted.end(), path_matrix[i][j]) - sorted.begin();
+}
+
+uint32_t invariant_paths::get(int v, const cell_data& W) const {
+	multiset_hash h;
+	for(auto w : W.vertices)
+		h.update(path_matrix[v][w]);
 	return h.value();
 }
