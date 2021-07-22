@@ -22,7 +22,7 @@ graph::graph() {
 
 graph::graph(int n) {
 	this->vertex_count = n;
-	adj_matrix = vector< vector<int> >(n, vector<int>(n, 0));
+	adj_matrix = vector< vector<bool> >(n, vector<bool>(n, false));
 	adj_vector = vector< vector<int> >(n);
 }
 
@@ -102,7 +102,7 @@ bool graph::adjacent(int u, int v) const {
 	return adj_matrix[u][v];
 }
 
-const vector< vector<int> >& graph::adjacency_matrix() const {
+const vector< vector<bool> >& graph::adjacency_matrix() const {
 	return adj_matrix;
 }
 

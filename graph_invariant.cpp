@@ -47,7 +47,10 @@ invariant_distance::invariant_distance(const graph& g) : g(g) {
 
 void invariant_distance::calculate() {
 	int vertex_count = g.v_count();
-	distance_matrix = g.adjacency_matrix();
+	distance_matrix = vector< vector<int> >(vertex_count, vector<int>(vertex_count));
+	for(int i = 0; i < vertex_count; i++)
+		for(int j = 0; j < vertex_count; j++)
+			distance_matrix[i][j] = g.adjacent(i, j);
 
 	for(int i = 0; i < vertex_count; i++)
 		for(int j = i + 1; j < vertex_count; j++)

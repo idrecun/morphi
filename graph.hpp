@@ -34,14 +34,14 @@ public:
 
 	int v_count() const;
 	bool adjacent(int u, int v) const;
-	const vector< vector<int> >& adjacency_matrix() const;
+	const vector< vector<bool> >& adjacency_matrix() const;
 	const vector< vector<int> >& adjacency_vector() const;
 
 	friend istream& operator>>(istream& in, graph& g);
 
 private:
 	int vertex_count;
-	vector< vector<int> > adj_matrix;
+	vector< vector<bool> > adj_matrix;
 	vector< vector<int> > adj_vector;
 	unique_ptr<graph_invariant> invariant;
 };
