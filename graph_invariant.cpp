@@ -85,10 +85,13 @@ invariant_paths::invariant_paths(const graph& g, int d) : g(g) {
 
 void invariant_paths::calculate() {
 	int vertex_count = g.v_count();
+	vector< vector< sequential_hash > > hashes(vertex_count, vector<sequential_hash>(vertex_count));
 	path_matrix = vector< vector<uint32_t> >(vertex_count, vector<uint32_t>(vertex_count));
 	for(int i = 0; i < vertex_count; i++)
-		for(int j = 0; j < vertex_count; j++)
+		for(int j = 0; j < vertex_count; j++) {
 			path_matrix[i][j] = g.adjacent(i, j);
+			hashes[i][j].update(path_matrix[i][j]);
+		}
 	vector< vector<uint32_t> > tmp_matrix(vertex_count, vector<uint32_t>(vertex_count));
 
 	for(int c = 1; c < d; c++) {
@@ -99,9 +102,16 @@ void invariant_paths::calculate() {
 					for(int j = 0; j < vertex_count; j++)
 						tmp_matrix[i][j] += path_matrix[k][j];
 		for(int i = 0; i < vertex_count; i++)
-			for(int j = 0; j < vertex_count; j++)
+			for(int j = 0; j < vertex_count; j++) {
 				path_matrix[i][j] = tmp_matrix[i][j];
+				hashes[i][j].update(path_matrix[i][j]);
+			}
 	}
+
+	for(int i = 0; i < vertex_count; i++)
+		for(int j = 0; j < vertex_count; j++)
+			path_matrix[i][j] = hashes[i][j].value();
+
 
 	vector<uint32_t> sorted(vertex_count * vertex_count);
 	for(int i = 0; i < vertex_count; i++)

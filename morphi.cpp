@@ -27,6 +27,7 @@ bool NOINV = false;
 
 bool GINV_DIST = false;
 bool GINV_NOBIT = false;
+bool GINV_PATH = false;
 
 bool RELABEL = false;
 
@@ -72,6 +73,7 @@ string helpstring =
 "--no-inv			Disable invariant calculation and pruning.\n"
 "-d, --invariant-distance		Use distance vertex invariant.\n"
 "-b, --invariant-nobits		Use adjacency vertex invariant without bitvectors.\n"
+"-p, --invariant-paths		Use path count vertex invariant.\n"
 "-l, --limit-aut			Automorphism limit (NOT IMPLEMENTED).\n"
 "\n"
 "Input options:\n"
@@ -97,6 +99,7 @@ void parse_options(int argc, char** argv) {
 
 		{"invariant-nobits",	no_argument,	0,	'b'},
 		{"invariant-distance",	no_argument,	0,	'd'},
+		{"invariant-paths", 	no_argument,	0,	'p'},
 		//{"limit-aut",		required_argument,	0,	'l'},
 
 		{"relabel",				no_argument,	0,	'r'},
@@ -104,7 +107,7 @@ void parse_options(int argc, char** argv) {
 	};
 
 	int c;
-	while((c = getopt_long(argc, argv, "hvsCITMAJdbl:r", long_options, &option_index)) != -1)
+	while((c = getopt_long(argc, argv, "hvsCITMAJdbpl:r", long_options, &option_index)) != -1)
 		switch(c) {
 			case 0:
 				switch(option_index) {
@@ -137,6 +140,8 @@ void parse_options(int argc, char** argv) {
 				GINV_DIST = true; break;
 			case 'b':
 				GINV_NOBIT = true; break;
+			case 'p':
+				GINV_PATH = true; break;
 			case 'r':
 				RELABEL = true; break;
 		}
@@ -173,6 +178,7 @@ int main(int argc, char** argv) {
 	g.set_invariant(make_unique<invariant_bitvector>(g));
 	if(GINV_NOBIT)	g.set_invariant(make_unique<invariant_adjacent>(g));
 	if(GINV_DIST)	g.set_invariant(make_unique<invariant_distance>(g));
+	if(GINV_PATH)	g.set_invariant(make_unique<invariant_paths>(g, 3));
 
 	permutation canon = search(g);
 
