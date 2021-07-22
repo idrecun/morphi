@@ -2,9 +2,13 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 #include "permutation.hpp"
 
 using std::vector;
+using std::distance;
+using std::unique;
+using std::swap;
 
 uint32_t hash::value() const {
 	return val;
@@ -37,6 +41,93 @@ uint32_t modpow(uint32_t a, uint32_t n) {
 		n >>= 1;
 	}
 	return res;
+}
+
+compressed_matrix::compressed_matrix() {
+	mode = 32;
+}
+
+compressed_matrix::compressed_matrix(int size, int bits) {
+	if(bits <= 1) mode = 1;
+	else if(bits <= 8) mode = 8;
+	else if(bits <= 16) mode = 16;
+	else mode = 32;
+
+	resize(size);
+}
+
+void compressed_matrix::from_matrix(const vector< vector<uint32_t> >& m) {
+	int size = m.size();
+
+	vector<uint32_t> values;
+	for(int i = 0; i < size; i++)
+		for(int j = 0; j <= i; j++)
+			values.push_back(m[i][j]);
+
+	sort(values.begin(), values.end());
+	values.resize(distance(values.begin(), unique(values.begin(), values.end())));
+
+	if(values.size() <= (1 << 1)) mode = 1;
+	else if(values.size() <= (1 << 8)) mode = 8;
+	else if(values.size() <= (1 << 16)) mode = 16;
+	else mode = 32;
+
+	resize(size);
+
+	for(int i = 0; i < size; i++)
+		for(int j = 0; j <= i; j++)
+			set(i, j, (uint32_t)(lower_bound(values.begin(), values.end(), m[i][j]) - values.begin()));
+		
+}
+
+uint32_t compressed_matrix::get(int i, int j) const {
+	if(i < j)
+		swap(i, j);
+	if(mode == 1)  return m_1[i][j];
+	if(mode == 8)  return m_8[i][j];
+	if(mode == 16) return m_16[i][j];
+	return m_32[i][j];
+}
+
+void compressed_matrix::set(int i, int j, uint32_t val) {
+	if(i < j)
+		swap(i, j);
+	if(mode == 1)  m_1[i][j] = val;
+	else if(mode == 8) m_8[i][j] = val;
+	else if(mode == 16) m_16[i][j] = val;
+	else m_32[i][j] = val;
+}
+
+void compressed_matrix::resize(int size) {
+	if(mode == 1) {
+		m_1 = vector< vector<bool> >(size);
+		for(int i = 0; i < size; i++)
+			m_1[i].resize(i + 1);
+	}
+	else if(mode == 8) {
+		m_8 = vector< vector<uint8_t> >(size);
+		for(int i = 0; i < size; i++)
+			m_8[i].resize(i + 1);
+	}
+	else if(mode == 16) {
+		m_16 = vector< vector<uint16_t> >(size);
+		for(int i = 0; i < size; i++)
+			m_16[i].resize(i + 1);
+	}
+	else {
+		m_32 = vector< vector<uint32_t> >(size);
+		for(int i = 0; i < size; i++)
+			m_32[i].resize(i + 1);
+	}
+}
+
+void compressed_matrix::resize(int size, int valcount) {
+	if(valcount <= (1 << 1)) mode = 1;
+	else if(valcount <= (1 << 8)) mode = 8;
+	else if(valcount <= (1 << 16)) mode = 16;
+	else mode = 32;
+
+	resize(size);
 }
 
 // Assumes that vectors represent sets and are sorted.

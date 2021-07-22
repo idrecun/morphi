@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "graph.hpp"
+#include "utility.hpp"
 
 class graph;
 
@@ -40,7 +41,7 @@ class invariant_distance : public graph_invariant {
 		uint32_t get(int v, const cell_data& W) const override;
 	private:
 		const graph& g;
-		vector< vector<int> > distance_matrix;
+		compressed_matrix distance_matrix;
 };
 
 class invariant_paths : public graph_invariant {

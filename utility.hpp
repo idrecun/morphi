@@ -27,6 +27,28 @@ class multiset_hash : public hash {
 
 uint32_t modpow(uint32_t a, uint32_t n);
 
+class compressed_matrix {
+	public:
+		compressed_matrix();
+		compressed_matrix(int size, int bits);
+
+		void from_matrix(const vector< vector<uint32_t> >& m);
+
+		uint32_t get(int i, int j) const;
+		void set(int i, int j, uint32_t val);
+
+		void resize(int size);
+		void resize(int size, int valcount);
+
+	private:
+		int mode;
+		vector< vector<bool> >      m_1;
+		vector< vector<uint8_t> >   m_8;
+		vector< vector<uint16_t> >  m_16;
+		vector< vector<uint32_t> >  m_32;
+
+};
+
 vector<int> intersect(const vector<int>& a, const vector<int>& b);
 
 vector<int> merge_orbits(const permutation& a, const permutation& b);

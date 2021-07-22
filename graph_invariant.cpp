@@ -47,35 +47,44 @@ invariant_distance::invariant_distance(const graph& g) : g(g) {
 
 void invariant_distance::calculate() {
 	int vertex_count = g.v_count();
-	distance_matrix = vector< vector<int> >(vertex_count, vector<int>(vertex_count));
-	for(int i = 0; i < vertex_count; i++)
-		for(int j = 0; j < vertex_count; j++)
-			distance_matrix[i][j] = g.adjacent(i, j);
-
-	for(int i = 0; i < vertex_count; i++)
-		for(int j = i + 1; j < vertex_count; j++)
-			distance_matrix[i][j] = distance_matrix[j][i] = vertex_count;
+	vector<uint32_t> distances(vertex_count);
 
 	queue<int> q;
-	for(int v = 0; v < vertex_count; v++) {
-		q.push(v);
-		while(!q.empty()) {
-			int u = q.front();
-			q.pop();
+	uint32_t diameter = 0;
+	for(int i = 0; i < 2; i++) {
+		for(int v = 0; v < vertex_count; v++) {
+			fill(distances.begin(), distances.end(), vertex_count);
+			distances[v] = 0;
 
-			for(int x : g.adjacency_vector()[u])
-				if(distance_matrix[v][x] == vertex_count) {
-					distance_matrix[v][x] = distance_matrix[v][u] + 1;
-					q.push(x);
-				}
+			q.push(v);
+			while(!q.empty()) {
+				int u = q.front();
+				q.pop();
+
+				for(int x : g.adjacency_vector()[u])
+					if(distances[x] == vertex_count) {
+						distances[x] = distances[u] + 1;
+						q.push(x);
+					}
+			}
+
+			if(i == 0)
+				diameter = std::max(diameter, *max_element(distances.begin(), distances.end()));
+			else
+				for(int w = 0; w <= v; w++)
+					distance_matrix.set(v, w, distances[w]);
 		}
+
+		if(i == 0) distance_matrix.resize(vertex_count, diameter + 1);
 	}
+
+	//distance_matrix.from_matrix(distances);
 }
 
 uint32_t invariant_distance::get(int v, const cell_data& W) const {
 	multiset_hash h;
 	for(auto w : W.vertices)
-		h.update(distance_matrix[v][w]);
+		h.update(distance_matrix.get(v, w));
 	return h.value();
 }
 
