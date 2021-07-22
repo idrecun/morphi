@@ -129,19 +129,20 @@ void colouring::make_equitable(const graph& g, int v) {
 
 	// Calculate invariant
 	vector<int> new_cells;
-	for(int i = 0; i != n; i = cells[i])
-		if(!input_colouring[i] || (cells[i] < n && !input_colouring[cells[i]]))
+	vector<int> new_cols;
+	for(int i = 0, c = 0; i != n; i = cells[i], c++)
+		if(!input_colouring[i] || (cells[i] < n && !input_colouring[cells[i]])) {
 			new_cells.push_back(i);
+			new_cols.push_back(c);
+		}
 
 	for(int i = 0; i < new_cells.size(); i++) {
 		int cell = new_cells[i];
-		inv.update(cell);
-		inv.update(cells[cell]);
+		inv.update(new_cols[i]);
+		inv.update(cells[cell] - cell);
 		cell_data W = cell_content(cell);
-		for(int j = 0; j <= i; j++) {
-			int cell2 = new_cells[j];
+		for(int cell2 : new_cells)
 			inv.update(g.get_invariant(pi[cell2], W));
-		}
 	}
 }
 
