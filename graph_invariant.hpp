@@ -52,7 +52,7 @@ class invariant_paths : public graph_invariant {
 	private:
 		int d;
 		const graph& g;
-		vector< vector<uint32_t> > path_matrix;
+		compressed_matrix path_matrix;
 };
 
 #endif

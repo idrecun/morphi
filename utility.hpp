@@ -9,6 +9,7 @@ using std::vector;
 
 class hash {
 	public:
+
 		virtual void update(uint32_t) = 0;
 		uint32_t value() const;
 	protected:
@@ -17,15 +18,17 @@ class hash {
 
 class sequential_hash : public hash {
 	public:
+		static uint16_t combine(uint16_t, uint16_t);
 		void update(uint32_t) override;
 };
 
 class multiset_hash : public hash {
 	public: 
+		static uint32_t modpow(uint32_t n);
+
 		void update(uint32_t) override;
 };
 
-uint32_t modpow(uint32_t a, uint32_t n);
 
 class compressed_matrix {
 	public:

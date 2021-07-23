@@ -97,49 +97,41 @@ invariant_paths::invariant_paths(const graph& g, int d) : g(g) {
 
 void invariant_paths::calculate() {
 	int vertex_count = g.v_count();
-	vector< vector< sequential_hash > > hashes(vertex_count, vector<sequential_hash>(vertex_count));
-	path_matrix = vector< vector<uint32_t> >(vertex_count, vector<uint32_t>(vertex_count));
+
+	compressed_matrix& hashes = path_matrix;
+	hashes.resize(vertex_count, 1 << 16);
+	vector< vector<uint16_t> > paths(vertex_count, vector<uint16_t>(vertex_count));
+
 	for(int i = 0; i < vertex_count; i++)
 		for(int j = 0; j < vertex_count; j++) {
-			path_matrix[i][j] = g.adjacent(i, j);
-			hashes[i][j].update(path_matrix[i][j]);
+			paths[i][j] = g.adjacent(i, j);
+			if(j <= i)
+				hashes.set(i, j, sequential_hash::combine(hashes.get(i, j), g.adjacent(i, j)));
 		}
-	vector< vector<uint32_t> > tmp_matrix(vertex_count, vector<uint32_t>(vertex_count));
 
 	for(int c = 1; c < d; c++) {
-		tmp_matrix = vector< vector<uint32_t> >(vertex_count, vector<uint32_t>(vertex_count));
-		for(int k = 0; k < vertex_count; k++)
-			for(int i = 0; i < vertex_count; i++)
-				if(g.adjacent(i, k))
-					for(int j = 0; j < vertex_count; j++)
-						tmp_matrix[i][j] += path_matrix[k][j];
-		for(int i = 0; i < vertex_count; i++)
-			for(int j = 0; j < vertex_count; j++) {
-				path_matrix[i][j] = tmp_matrix[i][j];
-				hashes[i][j].update(path_matrix[i][j]);
+		for(int i = 0; i < vertex_count; i++) {
+			vector<int> ones;
+			for(int j = 0; j < vertex_count; j++)
+				if(g.adjacent(i, j))
+					ones.push_back(j);
+			for(int j = i; j < vertex_count; j++) {
+				uint16_t s = 0;
+				for(int k : ones)
+					s += paths[k][j];
+				paths[j][i] = s;
+				hashes.set(j, i, sequential_hash::combine(hashes.get(j, i), paths[j][i]));
 			}
+		}
+		for(int i = 0; i < vertex_count; i++)
+			for(int j = 0; j < i; j++)
+				paths[j][i] = paths[i][j];
 	}
-
-	for(int i = 0; i < vertex_count; i++)
-		for(int j = 0; j < vertex_count; j++)
-			path_matrix[i][j] = hashes[i][j].value();
-
-
-	vector<uint32_t> sorted(vertex_count * vertex_count);
-	for(int i = 0; i < vertex_count; i++)
-		for(int j = 0; j < vertex_count; j++)
-			sorted[i * vertex_count + j] = path_matrix[i][j];
-
-	sort(sorted.begin(), sorted.end());
-
-	for(int i = 0; i < vertex_count; i++)
-		for(int j = 0; j < vertex_count; j++)
-			path_matrix[i][j] = lower_bound(sorted.begin(), sorted.end(), path_matrix[i][j]) - sorted.begin();
 }
 
 uint32_t invariant_paths::get(int v, const cell_data& W) const {
 	multiset_hash h;
 	for(auto w : W.vertices)
-		h.update(path_matrix[v][w]);
+		h.update(path_matrix.get(v, w));
 	return h.value();
 }

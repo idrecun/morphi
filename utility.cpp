@@ -19,6 +19,10 @@ void sequential_hash::update(uint32_t x) {
 	val ^= x + 0x9e3779b9 + (val << 6) + (val >> 2);
 }
 
+uint16_t sequential_hash::combine(uint16_t curr, uint16_t next) {
+	return curr ^ (next + 0x9e37 + (curr << 3) + (curr >> 1));
+}
+
 // Represents a multiset using the rolling hash idea:
 // (c0 * p^0 + c1 * p^1 + ... + cn * p^n) % m
 // where ci is the number of occurances (the count) of i in the multiset and p
@@ -26,13 +30,15 @@ void sequential_hash::update(uint32_t x) {
 // m is set to be 2^32
 // TODO: u grafu pretprocesirati vrednosti p^d[u][v], jer se funkcija uvek poziva kao update(d[u][v])
 // mozda bolje: kompresija nad matricom d, jer nam nisu bitne vrednosti same po sebi
+// mozda jos bolje: memoizacija!
 void multiset_hash::update(uint32_t x) {
-	val += modpow(1000003, x);
+	val += modpow(x);
 }
 
 // Implements the modular binary exponentiation algorithm
-// specifically for m = 2^32
-uint32_t modpow(uint32_t a, uint32_t n) {
+// specifically for m = 2^32, a = 1000003
+uint32_t multiset_hash::modpow(uint32_t n) {
+	uint32_t a = 1000003;
 	uint32_t res = 1;
 	while(n > 0) {
 		if(n & 1)
