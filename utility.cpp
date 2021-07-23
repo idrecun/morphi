@@ -62,30 +62,6 @@ compressed_matrix::compressed_matrix(int size, int bits) {
 	resize(size);
 }
 
-void compressed_matrix::from_matrix(const vector< vector<uint32_t> >& m) {
-	int size = m.size();
-
-	vector<uint32_t> values;
-	for(int i = 0; i < size; i++)
-		for(int j = 0; j <= i; j++)
-			values.push_back(m[i][j]);
-
-	sort(values.begin(), values.end());
-	values.resize(distance(values.begin(), unique(values.begin(), values.end())));
-
-	if(values.size() <= (1 << 1)) mode = 1;
-	else if(values.size() <= (1 << 8)) mode = 8;
-	else if(values.size() <= (1 << 16)) mode = 16;
-	else mode = 32;
-
-	resize(size);
-
-	for(int i = 0; i < size; i++)
-		for(int j = 0; j <= i; j++)
-			set(i, j, (uint32_t)(lower_bound(values.begin(), values.end(), m[i][j]) - values.begin()));
-		
-}
-
 uint32_t compressed_matrix::get(int i, int j) const {
 	if(i < j)
 		swap(i, j);
