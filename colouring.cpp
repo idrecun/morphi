@@ -78,7 +78,6 @@ int colouring::refine_cell(int c, const graph& g, const cell_data& W) {
 			cells[c] = i + l;
 			c = i + l;
 		}
-		//inv.update(kv[i].first);
 	}
 	cells[c] = r;
 

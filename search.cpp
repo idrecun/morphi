@@ -138,7 +138,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 			return level;
 
 		// Check for automorphism
-		permutation a = pi.i() * ~fst_node.p;
+		permutation a = ~fst_node.p * pi.i();
 		if(g.is_aut(a)) {
 			if(VERBOSE) {
 				if(SHOW_AUT) cout << " [aut: " << a << ']';
@@ -148,7 +148,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 			return fst_node.lca;
 		}
 
-		a = pi.i() * ~max_node.p;
+		a = ~max_node.p * pi.i();
 		if(g.is_aut(a)) {
 			if(VERBOSE) {
 				if(SHOW_AUT) cout << " [aut: " << a << ']';

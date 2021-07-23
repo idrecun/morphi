@@ -39,7 +39,7 @@ permutation permutation::operator~() const {
 permutation permutation::operator*(const permutation& oth) const {
 	permutation ret(n);
 	for(int i = 0; i < n; i++)
-		ret.set(i, oth[pi[i]]);
+		ret.set(i, pi[oth[i]]);
 	return ret;
 }
 
