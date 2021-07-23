@@ -35,8 +35,6 @@ class compressed_matrix {
 		compressed_matrix();
 		compressed_matrix(int size, int bits);
 
-		void from_matrix(const vector< vector<uint32_t> >& m);
-
 		uint32_t get(int i, int j) const;
 		void set(int i, int j, uint32_t val);
 
