@@ -156,7 +156,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 			}
 			aut.insert(a);
 			// greska, treba !aut.is_mcr???
-			if(!aut.is_mcr(stabilized[fst_node.lca + 1]))
+			if(!aut.is_mcr(stabilized[fst_node.lca]))
 				return fst_node.lca;
 			return max_node.lca;
 		}
