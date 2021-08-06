@@ -11,6 +11,7 @@ extern bool SHOW_TYPE;
 extern bool SHOW_MATRIX;
 extern bool SHOW_AUT;
 extern bool SHOW_BACKJUMP;
+extern bool SHOW_STATS;
 
 extern bool NOAUT;
 extern bool NOINV;
@@ -18,6 +19,7 @@ extern bool NOINV;
 extern bool USE_DV;
 extern bool RELABEL;
 
+// Algorithm state
 node max_node;
 node fst_node;
 
@@ -25,16 +27,27 @@ automorphism_set aut;
 
 vector<int> stabilized;
 
+// Statistics
+int tree_size = 0;
+
+
 permutation search(const graph& g) {
 	aut = automorphism_set(g.v_count());
 	colouring pi(g.v_count());
 
 	search(g, pi, true, true);
 
+	if(SHOW_STATS) {
+		cout << tree_size << '\n';
+		cout << aut.size() << '\n';
+	}
+
 	return max_node.p;
 }
 
 int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
+
+	tree_size++;
 
 	int level = stabilized.size();
 	int v = level == 0 ? -1 : stabilized.back();

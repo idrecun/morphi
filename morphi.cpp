@@ -14,6 +14,7 @@ using namespace std;
 using namespace std::chrono;
 
 // Traversal output options
+bool NOOUT = false;
 bool VERBOSE = false;
 bool SHOW_COLOURING = false;
 bool SHOW_INV = false;
@@ -21,6 +22,7 @@ bool SHOW_TYPE = false;
 bool SHOW_MATRIX = false;
 bool SHOW_AUT = false;
 bool SHOW_BACKJUMP = false;
+bool SHOW_STATS = false;
 
 bool NOAUT = false;
 bool NOINV = false;
@@ -31,34 +33,11 @@ bool GINV_PATH = false;
 
 bool RELABEL = false;
 
-// Options:
-//
-// -h, --help				print options
-// 
-// Traversal output options:
-// -s, --silent				silent (print none) - default
-// -v, --verbose			verbose (print all) - flips all flags
-// -C, --print-colouring	colouring
-// -I, --print-invariant	invariant
-// -T, --print-type			path type
-// -M, --print-matrix		binary graph string at each leaf
-// -A, --print-aut			automorphism
-// -J, --print-backjump		backjumps
-//
-// Algorithm options:
-// --no-aut					no automorphisms
-// --no-inv					no phi (invariant equal everywhere)
-// -d, --invariant-distance	Use distance vertex invariant
-// -b, --invariant-nobits	Use adjacency vertex invariant without bitvectors
-// -l, --limit-aut			automorphism limit?
-//
-// input options:
-// -r, --relabel			random relabel input graph(s)
-
 string helpstring = 
 "-h, --help			Prints this message.\n"
 "\n"
 "Traversal output options:\n"
+"-n, --no-output			Suppress output of canonical graph matrix.\n"
 "-s, --silent			Silent (print nothing during search) - this is the default printing option.\n"
 "-v, --verbose			Verbose (print everything during search) - flips all output option flags.\n"
 "-C, --print-colouring		Print colouring for each node in the search tree. Turns it off instead when using -v.\n"
@@ -67,6 +46,7 @@ string helpstring =
 "-M, --print-matrix		Print graph matrix for each leaf node in the search tree. Turns it off instead when using -v.\n"
 "-A, --print-aut			Print detected automorphisms. Turns it off instead when using -v.\n"
 "-J, --print-backjump		Print backjump points during search. Turns it off instead when using -v.\n"
+"-S, --print-stats		Print statistics after search. Turns it off instead when using -v.\n"
 "\n"
 "Algorithm options:\n"
 "--no-aut			Disable automorphism detection and pruning.\n"
@@ -85,6 +65,7 @@ void parse_options(int argc, char** argv) {
 	static option long_options[] = {
 		{"help",			no_argument,	0,	'h'},
 
+		{"no-output",				no_argument,	0,	'n'},
 		{"silent",				no_argument,	0,	's'},
 		{"verbose",				no_argument,	0,	'v'},
 		{"print-colouring",		no_argument,	0,	'C'},
@@ -93,6 +74,7 @@ void parse_options(int argc, char** argv) {
 		{"print-matrix",		no_argument,	0,	'M'},
 		{"print-aut",			no_argument,	0,	'A'},
 		{"print-backjump",		no_argument,	0,	'J'},
+		{"print-stats",		no_argument,	0,	'S'},
 
 		{"no-aut",				no_argument,	0,	0},
 		{"no-inv",				no_argument,	0,	0},
@@ -107,19 +89,21 @@ void parse_options(int argc, char** argv) {
 	};
 
 	int c;
-	while((c = getopt_long(argc, argv, "hvsCITMAJdbpl:r", long_options, &option_index)) != -1)
+	while((c = getopt_long(argc, argv, "hnvsCITMAJSdbpl:r", long_options, &option_index)) != -1)
 		switch(c) {
 			case 0:
 				switch(option_index) {
-					case 8:
+					case 10:
 						NOAUT = true; break;
-					case 9:
+					case 11:
 						NOINV = true; break;
 				}
 				break;
 			case 'h':
 				cout << helpstring;
 				exit(EXIT_SUCCESS);
+			case 'n':
+				NOOUT = true; break;
 			case 'v':
 				VERBOSE = true; break;
 			case 's':
@@ -136,6 +120,8 @@ void parse_options(int argc, char** argv) {
 				SHOW_AUT = true; break;
 			case 'J':
 				SHOW_BACKJUMP = true; break;
+			case 'S':
+				SHOW_STATS = true; break;
 			case 'd':
 				GINV_DIST = true; break;
 			case 'b':
@@ -182,10 +168,12 @@ int main(int argc, char** argv) {
 
 	permutation canon = search(g);
 
-	vector<bool> canonical = g.permuted(canon);
-	for(int b : canonical)
-		cout << b;
-	cout << '\n';
+	if(!NOOUT) {
+		vector<bool> canonical = g.permuted(canon);
+		for(int b : canonical)
+			cout << b;
+		cout << '\n';
+	}
 
 	return 0;
 }
