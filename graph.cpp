@@ -113,7 +113,14 @@ const vector< vector<int> >& graph::adjacency_vector() const {
 istream& operator>>(istream& in, graph& g) {
 	string s;
 	int v, e, a, b;
-	in >> s; in >> s;
+
+	in >> s;
+	while(s != "p") { // while s is "c"
+		in.ignore(10000, '\n');
+		in >> s;
+	}
+	
+	in >> s;
 	in >> v >> e;
 	
 	g = graph(v);
