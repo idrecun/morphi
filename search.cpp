@@ -85,7 +85,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 
 	if(VERBOSE) {
 		cout << '\n';
-		cout << string(level, '\t');
+		cout << string(level, ' ');
 
 		if(SHOW_COLOURING) cout << pi;
 		if(SHOW_INV) cout << " [phi: " << pi_phi << "]";
@@ -121,7 +121,7 @@ int search(const graph& g, colouring pi, bool max_path, bool aut_path) {
 			if(level == fst_node.lca)
 				mcr = intersect(mcr, aut.mcr());
 			else
-				mcr = intersect(mcr, aut.stabilizer(stabilized).mcr());
+				mcr = intersect(mcr, aut.stabilizer_mcr(stabilized));
 		}
 	}
 
