@@ -34,8 +34,10 @@ void invariant_bitvector::calculate() {
 
 uint32_t invariant_bitvector::get(int v, const cell_data& W) const {
 	int cnt = 0;
+	uint64_t mask;
 	for(auto w : W.bitvector)
-		cnt += __builtin_popcountll(w.val & adjacency_bitvector[v][w.idx]);
+		if((mask = w.val & adjacency_bitvector[v][w.idx]) != 0)
+			cnt += __builtin_popcountll(w.val & adjacency_bitvector[v][w.idx]);
 	return cnt;
 }
 
