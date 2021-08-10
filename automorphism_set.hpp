@@ -19,9 +19,8 @@ class automorphism_set {
 		vector<int> mcr() const;
 		bool is_mcr(int v) const;
 
-		// Returns a subset of this set stabilizing a point or a sequence
-		automorphism_set stabilizer(int sPoint) const;
-		automorphism_set stabilizer(const vector<int>& sPoints) const;
+		// Returns the orbit parititon of the subset of this set stabilizing a sequence
+		vector<int> stabilizer_mcr(const vector<int>& sPoints) const;
 
 		// Information about the number of stored automorphisms
 		bool empty() const;

@@ -46,29 +46,32 @@ bool automorphism_set::is_mcr(int v) const {
 	return orbit[v] == v;
 }
 
-// O(n * t_stab)
-automorphism_set automorphism_set::stabilizer(int sPoint) const {
-	automorphism_set ret(n);
-	for(int i : stab[sPoint])
-		ret.insert(auts[i]);
-	return ret;
-}
-
-// O(n * t_stab) recimo
-automorphism_set automorphism_set::stabilizer(const vector<int>& sPoints) const {
+vector<int> automorphism_set::stabilizer_mcr(const vector<int>& sPoints) const {
 	if(sPoints.empty())
-		return automorphism_set(n);
+		return mcr();
 
 	vector<int> stab_indices = stab[sPoints[0]];
 	for(int sPoint : sPoints)
 		stab_indices = intersect(stab_indices, stab[sPoint]);
 
-	automorphism_set ret(n);
-	for(int aut : stab_indices)
-		ret.insert(auts[aut]);
+	vector<int> s_orbit(n);
+	for(int i = 0; i < n; i++)
+		s_orbit[i] = i;
+	permutation sop = permutation(s_orbit);
 
-	return ret;
+	for(int i : stab_indices) {
+		s_orbit = merge_orbits(sop, auts[i]);
+		sop = from_orbits(s_orbit);
+	}
+
+	vector<int> s_mcr;
+	for(int i = 0; i < n; i++)
+		if(s_orbit[i] == i)
+			s_mcr.push_back(i);
+
+	return s_mcr;
 }
+
 
 bool automorphism_set::empty() const {
 	return auts.empty();
