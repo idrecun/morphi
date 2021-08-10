@@ -24,7 +24,7 @@ class sequential_hash : public hash {
 
 class multiset_hash : public hash {
 	public: 
-		static uint32_t modpow(uint32_t n);
+		static uint32_t single(uint32_t x);
 
 		void update(uint32_t) override;
 };
