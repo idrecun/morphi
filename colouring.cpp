@@ -68,7 +68,7 @@ int colouring::refine_cell(int c, const graph& g, const cell_data& W) {
 		return c;
 
 	int l = c, r = cells[c];
-	vector< pair<int, int> > kv(r - l);
+	vector< pair<uint32_t, int> > kv(r - l);
 	for(int i = 0; i < kv.size(); i++)
 		kv[i] = { g.get_invariant(pi[i + l], W), pi[i + l] };
 	sort(kv.begin(), kv.end());
