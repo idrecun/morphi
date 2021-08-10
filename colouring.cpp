@@ -91,14 +91,16 @@ int colouring::refine_cell(int c, const graph& g, const cell_data& W) {
 
 void colouring::make_equitable(const graph& g, int v) {
 
-	// Store colouring for invariant calculation ...
-	vector<bool> input_colouring(n);
-	for(int i = 0; i != n; i = cells[i])
-		input_colouring[i] = true;
+	vector<bool> input_colouring;
+	if(v != -1) {
+		// Store colouring for invariant calculation ...
+		input_colouring.resize(n);
+		for(int i = 0; i != n; i = cells[i])
+			input_colouring[i] = true;
 
-	// ... and undo individualization
-	if(v != -1)
+		// ... and undo individualization
 		input_colouring[pi.i(v) + 1] = false; 
+	}
 
 	vector<int> alpha(1, v == -1 ? 0 : pi.i(v));
 	vector<bool> alpha_set(n);
@@ -125,6 +127,10 @@ void colouring::make_equitable(const graph& g, int v) {
 				}
 		}
 	}
+
+	// Skip invariant calculation at root
+	if(v == -1)
+		return;
 
 	// Calculate invariant
 	vector<int> new_cells;
