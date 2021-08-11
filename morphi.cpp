@@ -146,6 +146,9 @@ int main(int argc, char** argv) {
 	srand(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 	parse_options(argc, argv);
 
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+
 	graph g;
 	cin >> g;
 
@@ -161,11 +164,13 @@ int main(int argc, char** argv) {
 		g.relabel(relabel);
 	}
 
-	g.set_invariant(make_unique<invariant_bitvector>(g));
-	if(GINV_NOBIT)	g.set_invariant(make_unique<invariant_adjacent>(g));
-	if(GINV_DIST)	g.set_invariant(make_unique<invariant_distance>(g));
-	if(GINV_PATH)	g.set_invariant(make_unique<invariant_paths>(g, 3));
 
+	if(GINV_NOBIT)		g.set_invariant(make_unique<invariant_adjacent>(g));
+	else if(GINV_DIST)	g.set_invariant(make_unique<invariant_distance>(g));
+	else if(GINV_PATH)	g.set_invariant(make_unique<invariant_paths>(g, 3));
+	else g.set_invariant(make_unique<invariant_bitvector>(g));
+
+	
 	permutation canon = search(g);
 
 	if(!NOOUT) {
